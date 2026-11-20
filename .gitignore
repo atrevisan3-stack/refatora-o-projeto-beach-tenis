@@ -1,0 +1,19 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# PyInstaller output and machine-specific spec file
+/build/
+/dist/
+/*.spec
+
+# Local environment files and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Bundled JDK found inside the legacy Java source tree; not needed by the app
+/src/dao/bd/oracleJdk-27/
