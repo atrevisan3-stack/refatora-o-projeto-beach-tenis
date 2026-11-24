@@ -1,13 +1,18 @@
-"""PostgreSQL adapter for the legacy Dante Squash schema."""
+"""Adaptador PostgreSQL: esquema, repositórios e unidade de trabalho.
+
+Melhorias sobre o legado: datas em ``DATE`` (corrige D02 e a ordenação por
+data), dinheiro em ``NUMERIC(10,2)`` (corrige D04), SQL sempre parametrizado
+e uma transação por caso de uso.
+"""
 
 from __future__ import annotations
 
+import csv
 from contextlib import contextmanager
-from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date
 from decimal import Decimal
-import os
-from typing import Any, Callable, Iterator, Sequence
+from pathlib import Path
+from typing import Any, Iterator, Mapping, Sequence
 
 from dante_squash.domain import (
     Consumption,
@@ -20,155 +25,198 @@ from dante_squash.domain import (
 )
 
 
-SCHEMA_STATEMENTS: tuple[str, ...] = (
-    """CREATE TABLE IF NOT EXISTS produtos (
-        codigo INTEGER PRIMARY KEY,
-        descricao VARCHAR(100) NOT NULL,
-        preco DOUBLE PRECISION NOT NULL,
-        unidade VARCHAR(100) NOT NULL
-    )""",
-    """CREATE TABLE IF NOT EXISTS clientes (
-        codigo INTEGER PRIMARY KEY,
-        cpf VARCHAR(11),
-        nome VARCHAR(50) NOT NULL,
-        dataaniversario VARCHAR(8),
-        telefone VARCHAR(15)
-    )""",
-    """CREATE TABLE IF NOT EXISTS valores (
-        codigo INTEGER PRIMARY KEY,
-        valorsauna DOUBLE PRECISION NOT NULL,
-        valoraulasquash DOUBLE PRECISION NOT NULL,
-        vencimento1 INTEGER NOT NULL,
-        valorsquashmensal1 DOUBLE PRECISION NOT NULL,
-        vencimento2 INTEGER,
-        valorsquashmensal2 DOUBLE PRECISION,
-        vencimento3 INTEGER,
-        valorsquashmensal3 DOUBLE PRECISION
-    )""",
-    """CREATE TABLE IF NOT EXISTS consumos (
-        codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
-        data INTEGER NOT NULL,
-        sequencia INTEGER NOT NULL,
-        codigo_produto INTEGER NOT NULL REFERENCES produtos(codigo),
-        quantidade INTEGER NOT NULL,
-        valor DOUBLE PRECISION NOT NULL,
-        pago BOOLEAN NOT NULL,
-        PRIMARY KEY (codigo_cliente, data, sequencia)
-    )""",
-    """CREATE TABLE IF NOT EXISTS pagamentos (
-        codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
-        data INTEGER NOT NULL,
-        sequencia INTEGER NOT NULL,
-        valor DOUBLE PRECISION NOT NULL,
-        pagto_total BOOLEAN NOT NULL,
-        PRIMARY KEY (codigo_cliente, data, sequencia)
-    )""",
-    """CREATE TABLE IF NOT EXISTS consumossauna (
-        codigo_cliente INTEGER NOT NULL,
-        data INTEGER NOT NULL,
-        sequencia INTEGER NOT NULL,
-        nome VARCHAR(100) NOT NULL,
-        PRIMARY KEY (codigo_cliente, data, sequencia),
-        FOREIGN KEY (codigo_cliente, data, sequencia)
-            REFERENCES consumos(codigo_cliente, data, sequencia),
-        FOREIGN KEY (codigo_cliente) REFERENCES clientes(codigo)
-    )""",
-    """CREATE TABLE IF NOT EXISTS horariossquash (
-        dia INTEGER NOT NULL,
-        horario VARCHAR(5) NOT NULL,
-        quadra INTEGER NOT NULL,
-        codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
-        jogo BOOLEAN NOT NULL,
-        PRIMARY KEY (dia, horario, quadra, codigo_cliente)
-    )""",
-    """CREATE TABLE IF NOT EXISTS mensalidades (
-        codigo_cliente INTEGER NOT NULL,
-        dia INTEGER NOT NULL,
-        horario VARCHAR(5) NOT NULL,
-        quadra INTEGER NOT NULL,
-        mes INTEGER NOT NULL,
-        ano INTEGER NOT NULL,
-        PRIMARY KEY (codigo_cliente, dia, horario, quadra, mes, ano)
-    )""",
-)
+class PostgresSchema:
+    """DDL das oito tabelas e carga padrão (RF17, RN29)."""
+
+    def __init__(self) -> None:
+        self._tables = (
+            ("clientes", """CREATE TABLE IF NOT EXISTS clientes (
+                codigo INTEGER PRIMARY KEY,
+                cpf VARCHAR(11) NOT NULL DEFAULT '',
+                nome VARCHAR(50) NOT NULL,
+                dataaniversario VARCHAR(8) NOT NULL DEFAULT '',
+                telefone VARCHAR(15) NOT NULL DEFAULT ''
+            )"""),
+            ("produtos", """CREATE TABLE IF NOT EXISTS produtos (
+                codigo INTEGER PRIMARY KEY,
+                descricao VARCHAR(100) NOT NULL,
+                preco NUMERIC(10, 2) NOT NULL,
+                unidade VARCHAR(100) NOT NULL
+            )"""),
+            ("valores", """CREATE TABLE IF NOT EXISTS valores (
+                codigo INTEGER PRIMARY KEY CHECK (codigo = 1),
+                valorsauna NUMERIC(10, 2) NOT NULL,
+                valoraulasquash NUMERIC(10, 2) NOT NULL,
+                vencimento1 INTEGER NOT NULL,
+                valorsquashmensal1 NUMERIC(10, 2) NOT NULL,
+                vencimento2 INTEGER,
+                valorsquashmensal2 NUMERIC(10, 2),
+                vencimento3 INTEGER,
+                valorsquashmensal3 NUMERIC(10, 2)
+            )"""),
+            ("consumos", """CREATE TABLE IF NOT EXISTS consumos (
+                codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
+                data DATE NOT NULL,
+                sequencia INTEGER NOT NULL,
+                codigo_produto INTEGER NOT NULL REFERENCES produtos(codigo),
+                quantidade INTEGER NOT NULL CHECK (quantidade > 0),
+                valor NUMERIC(10, 2) NOT NULL,
+                pago BOOLEAN NOT NULL,
+                PRIMARY KEY (codigo_cliente, data, sequencia)
+            )"""),
+            ("consumossauna", """CREATE TABLE IF NOT EXISTS consumossauna (
+                codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
+                data DATE NOT NULL,
+                sequencia INTEGER NOT NULL,
+                nome VARCHAR(100) NOT NULL,
+                PRIMARY KEY (codigo_cliente, data, sequencia),
+                FOREIGN KEY (codigo_cliente, data, sequencia)
+                    REFERENCES consumos(codigo_cliente, data, sequencia)
+            )"""),
+            ("pagamentos", """CREATE TABLE IF NOT EXISTS pagamentos (
+                codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
+                data DATE NOT NULL,
+                sequencia INTEGER NOT NULL,
+                valor NUMERIC(10, 2) NOT NULL CHECK (valor > 0),
+                pagto_total BOOLEAN NOT NULL,
+                PRIMARY KEY (codigo_cliente, data, sequencia)
+            )"""),
+            ("horariossquash", """CREATE TABLE IF NOT EXISTS horariossquash (
+                dia INTEGER NOT NULL CHECK (dia BETWEEN 1 AND 6),
+                horario VARCHAR(5) NOT NULL,
+                quadra INTEGER NOT NULL CHECK (quadra BETWEEN 1 AND 3),
+                codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
+                jogo BOOLEAN NOT NULL,
+                PRIMARY KEY (dia, horario, quadra, codigo_cliente)
+            )"""),
+            ("mensalidades", """CREATE TABLE IF NOT EXISTS mensalidades (
+                codigo_cliente INTEGER NOT NULL REFERENCES clientes(codigo),
+                dia INTEGER NOT NULL,
+                horario VARCHAR(5) NOT NULL,
+                quadra INTEGER NOT NULL,
+                mes INTEGER NOT NULL CHECK (mes BETWEEN 1 AND 12),
+                ano INTEGER NOT NULL,
+                PRIMARY KEY (codigo_cliente, dia, horario, quadra, mes, ano)
+            )"""),
+        )
+        self._default_products = (
+            (0, "Saldo de pagamento"),
+            (1, "Sauna"),
+            (-1, "Mensalidade do Squash"),
+            (-2, "Primeira Multa por atraso do Squash"),
+            (-3, "Segunda Multa por atraso do Squash"),
+        )
+
+    def table_names(self) -> tuple[str, ...]:
+        return tuple(name for name, _ in self._tables)
+
+    def create_statements(self) -> tuple[str, ...]:
+        return tuple(statement for _, statement in self._tables)
+
+    def default_products(self) -> tuple[tuple[int, str], ...]:
+        return self._default_products
 
 
-class PostgresDatabase:
-    """Creates short-lived PostgreSQL connections and atomic transactions."""
+class EnvironmentSettings:
+    """Lê a string de conexão do ambiente; credenciais nunca ficam no código."""
 
-    def __init__(self, connection_factory: Callable[[], Any]) -> None:
-        self._connection_factory = connection_factory
+    def __init__(self, environment: Mapping[str, str]) -> None:
+        self._environment = environment
 
-    @classmethod
-    def from_environment(cls) -> PostgresDatabase:
-        dsn = os.environ.get("DANTE_SQUASH_DSN")
+    def dsn(self) -> str:
+        dsn = self._environment.get("DANTE_SQUASH_DSN", "").strip()
         if not dsn:
-            raise RuntimeError("Defina a variável de ambiente DANTE_SQUASH_DSN.")
+            raise RuntimeError(
+                "Defina a variável de ambiente DANTE_SQUASH_DSN "
+                "(ex.: postgresql://usuario:senha@localhost:5432/dante_squash)."
+            )
+        return dsn
+
+
+class PsycopgConnector:
+    """Abre conexões psycopg; a conexão faz commit ao sair sem erro e rollback com erro."""
+
+    def __init__(self, dsn: str) -> None:
+        self._dsn = dsn
+
+    def connect(self) -> Any:
         try:
             import psycopg
         except ImportError as error:
             raise RuntimeError(
                 "O driver PostgreSQL não está instalado. Execute: pip install -r requirements.txt"
             ) from error
-        return cls(lambda: psycopg.connect(dsn))
+        return psycopg.connect(self._dsn)
+
+
+class PostgresDatabase:
+    def __init__(self, connector: Any, schema: PostgresSchema) -> None:
+        self._connector = connector
+        self.schema = schema
 
     @contextmanager
     def transaction(self) -> Iterator[Any]:
-        with self._connection_factory() as connection:
+        with self._connector.connect() as connection:
             yield connection
 
     def initialize(self) -> None:
+        """Cria as tabelas ausentes e a carga padrão, sem alterar dados existentes."""
         with self.transaction() as connection:
             with connection.cursor() as cursor:
-                for statement in SCHEMA_STATEMENTS:
+                for statement in self.schema.create_statements():
                     cursor.execute(statement)
-                cursor.execute(
-                    """INSERT INTO produtos (codigo, descricao, preco, unidade)
-                       VALUES (%s, %s, %s, %s) ON CONFLICT (codigo) DO NOTHING""",
-                    (0, "Saldo de pagamento", 0, "un"),
-                )
-                for product in (
-                    (1, "Sauna"),
-                    (-1, "Mensalidade do Squash"),
-                    (-2, "Primeira Multa por atraso do Squash"),
-                    (-3, "Segunda Multa por atraso do Squash"),
-                ):
+                for code, description in self.schema.default_products():
                     cursor.execute(
                         """INSERT INTO produtos (codigo, descricao, preco, unidade)
                            VALUES (%s, %s, %s, %s) ON CONFLICT (codigo) DO NOTHING""",
-                        (product[0], product[1], 0, "un"),
+                        (code, description, Decimal("0"), "un"),
                     )
                 cursor.execute(
                     """INSERT INTO clientes (codigo, cpf, nome, dataaniversario, telefone)
                        VALUES (%s, %s, %s, %s, %s) ON CONFLICT (codigo) DO NOTHING""",
-                    (0, "0000", "Cliente Sauna", "0", "0"),
+                    (0, "", "Cliente Sauna", "", ""),
                 )
 
+    def drop_all(self) -> None:
+        """Exclui todas as tabelas (usado pelos testes de banco)."""
+        with self.transaction() as connection:
+            with connection.cursor() as cursor:
+                for name in reversed(self.schema.table_names()):
+                    cursor.execute(f"DROP TABLE IF EXISTS {name} CASCADE")
 
-@dataclass
+
 class PostgresUnitOfWork:
-    """Shares one connection among repositories for a single atomic use case."""
+    """Compartilha uma conexão entre os repositórios de um caso de uso."""
 
-    database: PostgresDatabase
+    def __init__(self, database: PostgresDatabase) -> None:
+        self._database = database
 
     def __enter__(self) -> PostgresUnitOfWork:
-        self._transaction = self.database.transaction()
-        self.connection = self._transaction.__enter__()
-        self.customers = _CustomerRepository(self.connection)
-        self.products = _ProductRepository(self.connection)
-        self.prices = _PriceScheduleRepository(self.connection)
-        self.reservations = _ReservationRepository(self.connection)
-        self.consumptions = _ConsumptionRepository(self.connection)
-        self.payments = _PaymentRepository(self.connection)
-        self.sauna = _SaunaRepository(self.connection)
-        self.monthly_billing = _MonthlyBillingRepository(self.connection)
+        self._transaction = self._database.transaction()
+        connection = self._transaction.__enter__()
+        self.customers = PostgresCustomerRepository(connection)
+        self.products = PostgresProductRepository(connection)
+        self.prices = PostgresPriceScheduleRepository(connection)
+        self.reservations = PostgresReservationRepository(connection)
+        self.consumptions = PostgresConsumptionRepository(connection)
+        self.payments = PostgresPaymentRepository(connection)
+        self.sauna = PostgresSaunaRepository(connection, self.consumptions)
+        self.monthly_billing = PostgresMonthlyBillingRepository(connection)
         return self
 
     def __exit__(self, exception_type: object, exception: object, traceback: object) -> bool | None:
         return self._transaction.__exit__(exception_type, exception, traceback)
 
 
-class _Repository:
+class PostgresUnitOfWorkFactory:
+    def __init__(self, database: PostgresDatabase) -> None:
+        self._database = database
+
+    def __call__(self) -> PostgresUnitOfWork:
+        return PostgresUnitOfWork(self._database)
+
+
+class PostgresRepository:
     def __init__(self, connection: Any) -> None:
         self._connection = connection
 
@@ -177,36 +225,33 @@ class _Repository:
             cursor.execute(statement, parameters)
             return list(cursor.fetchall())
 
+    def _one_value(self, statement: str, parameters: Sequence[object] = ()) -> Any:
+        return self._all(statement, parameters)[0][0]
+
     def _execute(self, statement: str, parameters: Sequence[object] = ()) -> None:
         with self._connection.cursor() as cursor:
             cursor.execute(statement, parameters)
 
 
-def _date_to_legacy_integer(value: date) -> int:
-    return int(value.strftime("%d%m%Y"))
+class PostgresCustomerRepository(PostgresRepository):
+    def _customer(self, row: tuple[Any, ...]) -> Customer:
+        return Customer(code=row[0], name=row[1], cpf=row[2], birthday=row[3], phone=row[4])
 
-
-def _date_from_legacy_integer(value: int) -> date:
-    return datetime.strptime(str(value).zfill(8), "%d%m%Y").date()
-
-
-def _legacy_month_year(value: int) -> tuple[int, int]:
-    raw = str(value)
-    return int(raw[2:4]) - 1, int(raw[4:8])
-
-
-class _CustomerRepository(_Repository):
     def list_all(self) -> list[Customer]:
         rows = self._all(
             "SELECT codigo, nome, cpf, dataaniversario, telefone FROM clientes ORDER BY nome"
         )
-        return [
-            Customer(code=row[0], name=row[1], cpf=row[2] or "", birthday=row[3] or "", phone=row[4] or "")
-            for row in rows
-        ]
+        return [self._customer(row) for row in rows]
+
+    def get(self, code: int) -> Customer | None:
+        rows = self._all(
+            "SELECT codigo, nome, cpf, dataaniversario, telefone FROM clientes WHERE codigo = %s",
+            (code,),
+        )
+        return self._customer(rows[0]) if rows else None
 
     def next_code(self) -> int:
-        return int(self._all("SELECT COALESCE(MAX(codigo), 0) + 1 FROM clientes")[0][0])
+        return int(self._one_value("SELECT COALESCE(MAX(codigo), 0) + 1 AS proximo FROM clientes"))
 
     def save(self, customer: Customer) -> None:
         self._execute(
@@ -218,19 +263,42 @@ class _CustomerRepository(_Repository):
             (customer.code, customer.cpf, customer.name, customer.birthday, customer.phone),
         )
 
-
-class _ProductRepository(_Repository):
-    def list_all(self) -> list[Product]:
-        rows = self._all(
-            "SELECT codigo, descricao, preco, unidade FROM produtos ORDER BY codigo"
+    def has_dependencies(self, code: int) -> bool:
+        """Consumos, consumos de sauna, pagamentos, reservas ou mensalidades (RN02, D05 antigo)."""
+        return bool(
+            self._one_value(
+                """SELECT EXISTS (SELECT 1 FROM consumos WHERE codigo_cliente = %s)
+                       OR EXISTS (SELECT 1 FROM consumossauna WHERE codigo_cliente = %s)
+                       OR EXISTS (SELECT 1 FROM pagamentos WHERE codigo_cliente = %s)
+                       OR EXISTS (SELECT 1 FROM horariossquash WHERE codigo_cliente = %s)
+                       OR EXISTS (SELECT 1 FROM mensalidades WHERE codigo_cliente = %s)
+                   AS vinculado""",
+                (code, code, code, code, code),
+            )
         )
-        return [
-            Product(code=row[0], description=row[1], price=Decimal(str(row[2])), unit=row[3])
-            for row in rows
-        ]
+
+    def delete(self, code: int) -> None:
+        self._execute("DELETE FROM clientes WHERE codigo = %s", (code,))
+
+
+class PostgresProductRepository(PostgresRepository):
+    def _product(self, row: tuple[Any, ...]) -> Product:
+        return Product(code=row[0], description=row[1], price=Decimal(row[2]), unit=row[3])
+
+    def list_all(self) -> list[Product]:
+        rows = self._all("SELECT codigo, descricao, preco, unidade FROM produtos ORDER BY codigo")
+        return [self._product(row) for row in rows]
+
+    def get(self, code: int) -> Product | None:
+        rows = self._all(
+            "SELECT codigo, descricao, preco, unidade FROM produtos WHERE codigo = %s", (code,)
+        )
+        return self._product(rows[0]) if rows else None
 
     def next_code(self) -> int:
-        return max(2, int(self._all("SELECT COALESCE(MAX(codigo), 1) + 1 FROM produtos")[0][0]))
+        return int(
+            self._one_value("SELECT GREATEST(COALESCE(MAX(codigo), 1) + 1, 2) AS proximo FROM produtos")
+        )
 
     def save(self, product: Product) -> None:
         self._execute(
@@ -238,11 +306,22 @@ class _ProductRepository(_Repository):
                VALUES (%s, %s, %s, %s)
                ON CONFLICT (codigo) DO UPDATE SET descricao = EXCLUDED.descricao,
                preco = EXCLUDED.preco, unidade = EXCLUDED.unidade""",
-            (product.code, product.description, float(product.price), product.unit),
+            (product.code, product.description, product.price, product.unit),
         )
 
+    def is_used(self, code: int) -> bool:
+        return bool(
+            self._one_value(
+                "SELECT EXISTS (SELECT 1 FROM consumos WHERE codigo_produto = %s) AS usado",
+                (code,),
+            )
+        )
 
-class _PriceScheduleRepository(_Repository):
+    def delete(self, code: int) -> None:
+        self._execute("DELETE FROM produtos WHERE codigo = %s", (code,))
+
+
+class PostgresPriceScheduleRepository(PostgresRepository):
     def get(self) -> PriceSchedule | None:
         rows = self._all(
             """SELECT valorsauna, valoraulasquash, vencimento1, valorsquashmensal1,
@@ -252,26 +331,20 @@ class _PriceScheduleRepository(_Repository):
         if not rows:
             return None
         row = rows[0]
-        tiers = [DueTier(row[2], Decimal(str(row[3])))]
-        if row[4] is not None or row[5] is not None:
-            tiers.append(DueTier(row[4], Decimal(str(row[5])) if row[5] is not None else None))
-        if row[6] is not None or row[7] is not None:
-            tiers.append(DueTier(row[6], Decimal(str(row[7])) if row[7] is not None else None))
-        return PriceSchedule(
-            sauna_price=Decimal(str(row[0])),
-            squash_lesson_price=Decimal(str(row[1])),
-            due_tiers=tuple(tiers),
-        )
+        tiers = [DueTier(row[2], Decimal(row[3]))]
+        for day, price in ((row[4], row[5]), (row[6], row[7])):
+            if day is not None:
+                tiers.append(DueTier(day, Decimal(price)))
+        return PriceSchedule(Decimal(row[0]), Decimal(row[1]), tuple(tiers))
 
     def save(self, schedule: PriceSchedule) -> None:
-        schedule.validate()
-        tiers = list(schedule.due_tiers) + [None, None]
+        tiers: list[DueTier | None] = list(schedule.due_tiers) + [None, None]
         second, third = tiers[1], tiers[2]
         self._execute(
             """INSERT INTO valores (
                    codigo, valorsauna, valoraulasquash, vencimento1, valorsquashmensal1,
                    vencimento2, valorsquashmensal2, vencimento3, valorsquashmensal3
-               ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+               ) VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s)
                ON CONFLICT (codigo) DO UPDATE SET
                    valorsauna = EXCLUDED.valorsauna,
                    valoraulasquash = EXCLUDED.valoraulasquash,
@@ -282,20 +355,19 @@ class _PriceScheduleRepository(_Repository):
                    vencimento3 = EXCLUDED.vencimento3,
                    valorsquashmensal3 = EXCLUDED.valorsquashmensal3""",
             (
-                1,
-                float(schedule.sauna_price),
-                float(schedule.squash_lesson_price),
+                schedule.sauna_price,
+                schedule.squash_lesson_price,
                 schedule.due_tiers[0].day,
-                float(schedule.due_tiers[0].monthly_price),
+                schedule.due_tiers[0].monthly_price,
                 second.day if second else None,
-                float(second.monthly_price) if second and second.monthly_price is not None else None,
+                second.monthly_price if second else None,
                 third.day if third else None,
-                float(third.monthly_price) if third and third.monthly_price is not None else None,
+                third.monthly_price if third else None,
             ),
         )
 
 
-class _ReservationRepository(_Repository):
+class PostgresReservationRepository(PostgresRepository):
     def list_all(self) -> list[Reservation]:
         rows = self._all(
             """SELECT dia, horario, quadra, jogo, codigo_cliente FROM horariossquash
@@ -305,16 +377,12 @@ class _ReservationRepository(_Repository):
         for weekday, time, court, is_game, customer_id in rows:
             grouped.setdefault((weekday, time, court, is_game), []).append(customer_id)
         return [
-            Reservation(day, time, court, is_game, tuple(customers))
-            for (day, time, court, is_game), customers in grouped.items()
+            Reservation(weekday, time, court, is_game, tuple(customers))
+            for (weekday, time, court, is_game), customers in grouped.items()
         ]
 
     def replace(self, reservation: Reservation) -> None:
-        reservation.validate()
-        self._execute(
-            "DELETE FROM horariossquash WHERE dia = %s AND horario = %s AND quadra = %s",
-            (reservation.weekday, reservation.time, reservation.court),
-        )
+        self.delete(reservation.weekday, reservation.time, reservation.court)
         for customer_id in reservation.customer_ids:
             self._execute(
                 """INSERT INTO horariossquash (dia, horario, quadra, codigo_cliente, jogo)
@@ -328,51 +396,91 @@ class _ReservationRepository(_Repository):
                 ),
             )
 
+    def delete(self, weekday: int, time: str, court: int) -> None:
+        self._execute(
+            "DELETE FROM horariossquash WHERE dia = %s AND horario = %s AND quadra = %s",
+            (weekday, time, court),
+        )
 
-class _ConsumptionRepository(_Repository):
-    def unpaid_for_customer(self, customer_id: int) -> list[Consumption]:
+
+class PostgresConsumptionRepository(PostgresRepository):
+    def __init__(self, connection: Any) -> None:
+        super().__init__(connection)
+        self._columns = (
+            "codigo_cliente, data, sequencia, codigo_produto, quantidade, valor, pago"
+        )
+
+    def _consumption(self, row: tuple[Any, ...]) -> Consumption:
+        return Consumption(
+            customer_id=row[0],
+            date=row[1],
+            sequence=row[2],
+            product_code=row[3],
+            quantity=row[4],
+            unit_price=Decimal(row[5]),
+            paid=row[6],
+        )
+
+    def for_customer(self, customer_id: int) -> list[Consumption]:
         rows = self._all(
-            """SELECT codigo_cliente, data, sequencia, codigo_produto,
-                      quantidade, valor, pago
-               FROM consumos WHERE codigo_cliente = %s AND pago = FALSE
-               ORDER BY data, sequencia""",
+            f"""SELECT {self._columns} FROM consumos WHERE codigo_cliente = %s
+                ORDER BY data, sequencia""",
             (customer_id,),
         )
-        return [
-            Consumption(
-                customer_id=row[0],
-                date=_date_from_legacy_integer(row[1]),
-                sequence=row[2],
-                product_code=row[3],
-                quantity=row[4],
-                unit_price=Decimal(str(row[5])),
-                paid=row[6],
-            )
-            for row in rows
-        ]
+        return [self._consumption(row) for row in rows]
+
+    def unpaid_for_customer(self, customer_id: int) -> list[Consumption]:
+        rows = self._all(
+            f"""SELECT {self._columns} FROM consumos
+                WHERE codigo_cliente = %s AND pago = FALSE ORDER BY data, sequencia""",
+            (customer_id,),
+        )
+        return [self._consumption(row) for row in rows]
+
+    def between(self, start: date, end: date) -> list[Consumption]:
+        rows = self._all(
+            f"""SELECT {self._columns} FROM consumos WHERE data BETWEEN %s AND %s
+                ORDER BY data, codigo_cliente, sequencia""",
+            (start, end),
+        )
+        return [self._consumption(row) for row in rows]
+
+    def get(self, customer_id: int, consumption_date: date, sequence: int) -> Consumption | None:
+        rows = self._all(
+            f"""SELECT {self._columns} FROM consumos
+                WHERE codigo_cliente = %s AND data = %s AND sequencia = %s""",
+            (customer_id, consumption_date, sequence),
+        )
+        return self._consumption(rows[0]) if rows else None
 
     def next_sequence(self, customer_id: int, consumption_date: date) -> int:
-        rows = self._all(
-            """SELECT COALESCE(MAX(sequencia), 0) + 1 FROM consumos
-               WHERE codigo_cliente = %s AND data = %s""",
-            (customer_id, _date_to_legacy_integer(consumption_date)),
+        return int(
+            self._one_value(
+                """SELECT COALESCE(MAX(sequencia), 0) + 1 AS proxima FROM consumos
+                   WHERE codigo_cliente = %s AND data = %s""",
+                (customer_id, consumption_date),
+            )
         )
-        return int(rows[0][0])
 
     def insert(self, consumption: Consumption) -> None:
         self._execute(
-            """INSERT INTO consumos
-               (codigo_cliente, data, sequencia, codigo_produto, quantidade, valor, pago)
-               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            f"""INSERT INTO consumos ({self._columns})
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
             (
                 consumption.customer_id,
-                _date_to_legacy_integer(consumption.date),
+                consumption.date,
                 consumption.sequence,
                 consumption.product_code,
                 consumption.quantity,
-                float(consumption.unit_price),
+                consumption.unit_price,
                 consumption.paid,
             ),
+        )
+
+    def delete(self, customer_id: int, consumption_date: date, sequence: int) -> None:
+        self._execute(
+            "DELETE FROM consumos WHERE codigo_cliente = %s AND data = %s AND sequencia = %s",
+            (customer_id, consumption_date, sequence),
         )
 
     def mark_unpaid_as_paid(self, customer_id: int) -> None:
@@ -382,192 +490,146 @@ class _ConsumptionRepository(_Repository):
         )
 
 
-class _PaymentRepository(_Repository):
+class PostgresPaymentRepository(PostgresRepository):
     def record(
-        self,
-        customer_id: int,
-        payment_date: date,
-        amount: Decimal,
-        paid_in_full: bool,
+        self, customer_id: int, payment_date: date, amount: Decimal, paid_in_full: bool
     ) -> None:
-        legacy_date = _date_to_legacy_integer(payment_date)
-        rows = self._all(
-            """SELECT COALESCE(MAX(sequencia), 0) + 1 FROM pagamentos
+        sequence = self._one_value(
+            """SELECT COALESCE(MAX(sequencia), 0) + 1 AS proxima FROM pagamentos
                WHERE codigo_cliente = %s AND data = %s""",
-            (customer_id, legacy_date),
+            (customer_id, payment_date),
         )
         self._execute(
-            """INSERT INTO pagamentos
-               (codigo_cliente, data, sequencia, valor, pagto_total)
+            """INSERT INTO pagamentos (codigo_cliente, data, sequencia, valor, pagto_total)
                VALUES (%s, %s, %s, %s, %s)""",
-            (customer_id, legacy_date, int(rows[0][0]), float(amount), paid_in_full),
+            (customer_id, payment_date, int(sequence), amount, paid_in_full),
         )
 
 
-class _SaunaRepository(_Repository):
+class PostgresSaunaRepository(PostgresRepository):
+    def __init__(self, connection: Any, consumptions: PostgresConsumptionRepository) -> None:
+        super().__init__(connection)
+        self._consumptions = consumptions
+
     def accounts_for_date(self, account_date: date) -> list[SaunaAccount]:
         rows = self._all(
             """SELECT cs.nome, c.codigo_cliente, c.data, c.sequencia,
                       c.codigo_produto, c.quantidade, c.valor, c.pago
                FROM consumossauna cs
                JOIN consumos c ON c.codigo_cliente = cs.codigo_cliente
-                   AND c.data = cs.data AND c.sequencia = cs.sequencia
+                AND c.data = cs.data AND c.sequencia = cs.sequencia
                WHERE cs.data = %s
                ORDER BY cs.nome, c.sequencia""",
-            (_date_to_legacy_integer(account_date),),
+            (account_date,),
         )
         grouped: dict[str, list[Consumption]] = {}
-        closed: dict[str, bool] = {}
-        for name, customer_id, legacy_date, sequence, product_code, quantity, price, paid in rows:
-            grouped.setdefault(name, []).append(
+        for row in rows:
+            grouped.setdefault(row[0], []).append(
                 Consumption(
-                    customer_id=customer_id,
-                    date=_date_from_legacy_integer(legacy_date),
-                    sequence=sequence,
-                    product_code=product_code,
-                    quantity=quantity,
-                    unit_price=Decimal(str(price)),
-                    paid=paid,
+                    customer_id=row[1],
+                    date=row[2],
+                    sequence=row[3],
+                    product_code=row[4],
+                    quantity=row[5],
+                    unit_price=Decimal(row[6]),
+                    paid=row[7],
                 )
             )
-            closed[name] = closed.get(name, True) and paid
         return [
-            SaunaAccount(name, account_date, tuple(items), closed[name])
+            SaunaAccount(name, account_date, tuple(items), all(item.paid for item in items))
             for name, items in grouped.items()
         ]
 
-    def create_account(self, account: SaunaAccount, entrance_price: Decimal) -> None:
-        consumption = Consumption(
-            customer_id=0,
-            date=account.date,
-            sequence=self._next_sequence(account.date),
-            product_code=1,
-            quantity=1,
-            unit_price=entrance_price,
-        )
-        self._insert_sauna_consumption(account.name, consumption)
-
-    def add_consumption(
-        self,
-        account_name: str,
-        account_date: date,
-        consumption: Consumption,
-    ) -> None:
-        self._insert_sauna_consumption(account_name, consumption)
-
-    def close_account(self, account_name: str, account_date: date, amount_paid: Decimal) -> None:
-        legacy_date = _date_to_legacy_integer(account_date)
-        keys = self._all(
-            """SELECT codigo_cliente, data, sequencia FROM consumossauna
-               WHERE LOWER(nome) = LOWER(%s) AND data = %s ORDER BY sequencia""",
-            (account_name, legacy_date),
-        )
-        if not keys:
-            raise LookupError("Frequentador da sauna não encontrado.")
-        initial = keys[0]
-        rows = self._all(
-            """SELECT COALESCE(SUM(c.valor * c.quantidade), 0)
-               FROM consumos c JOIN consumossauna cs
-                 ON cs.codigo_cliente = c.codigo_cliente
-                AND cs.data = c.data AND cs.sequencia = c.sequencia
-               WHERE LOWER(cs.nome) = LOWER(%s) AND cs.data = %s""",
-            (account_name, legacy_date),
-        )
-        difference = amount_paid - Decimal(str(rows[0][0]))
-        self._execute(
-            """UPDATE consumos SET pago = TRUE
-               WHERE (codigo_cliente, data, sequencia) IN (
-                   SELECT codigo_cliente, data, sequencia FROM consumossauna
-                   WHERE LOWER(nome) = LOWER(%s) AND data = %s
-               )""",
-            (account_name, legacy_date),
-        )
-        if difference:
-            self._execute(
-                """UPDATE consumos SET valor = valor + %s
-                   WHERE codigo_cliente = %s AND data = %s AND sequencia = %s""",
-                (float(difference), initial[0], initial[1], initial[2]),
-            )
-
-    def _next_sequence(self, account_date: date) -> int:
-        rows = self._all(
-            """SELECT COALESCE(MAX(sequencia), 0) + 1 FROM consumos
-               WHERE codigo_cliente = 0 AND data = %s""",
-            (_date_to_legacy_integer(account_date),),
-        )
-        return int(rows[0][0])
-
-    def _insert_sauna_consumption(self, name: str, consumption: Consumption) -> None:
-        _ConsumptionRepository(self._connection).insert(consumption)
+    def add_consumption(self, account_name: str, consumption: Consumption) -> None:
+        self._consumptions.insert(consumption)
         self._execute(
             """INSERT INTO consumossauna (codigo_cliente, data, sequencia, nome)
                VALUES (%s, %s, %s, %s)""",
-            (
-                consumption.customer_id,
-                _date_to_legacy_integer(consumption.date),
-                consumption.sequence,
-                name,
-            ),
+            (consumption.customer_id, consumption.date, consumption.sequence, account_name),
         )
 
-
-class _MonthlyBillingRepository(_Repository):
-    def has_record(
-        self,
-        customer_id: int,
-        reservation: Reservation,
-        month: int,
-        year: int,
-    ) -> bool:
-        rows = self._all(
-            """SELECT 1 FROM mensalidades
-               WHERE codigo_cliente = %s AND dia = %s AND horario = %s
-                 AND quadra = %s AND mes = %s AND ano = %s""",
-            (
-                customer_id,
-                reservation.weekday,
-                reservation.time,
-                reservation.court,
-                month,
-                year,
-            ),
-        )
-        return bool(rows)
-
-    def record(
-        self,
-        customer_id: int,
-        reservation: Reservation,
-        month: int,
-        year: int,
-    ) -> None:
+    def remove_consumption(self, account_date: date, sequence: int) -> None:
         self._execute(
-            """INSERT INTO mensalidades
-               (codigo_cliente, dia, horario, quadra, mes, ano)
-               VALUES (%s, %s, %s, %s, %s, %s)
-               ON CONFLICT DO NOTHING""",
-            (
-                customer_id,
-                reservation.weekday,
-                reservation.time,
-                reservation.court,
-                month,
-                year,
-            ),
+            """DELETE FROM consumossauna
+               WHERE codigo_cliente = 0 AND data = %s AND sequencia = %s""",
+            (account_date, sequence),
+        )
+        self._consumptions.delete(0, account_date, sequence)
+
+    def close_account(self, account: SaunaAccount, entrance_adjustment: Decimal) -> None:
+        for item in account.consumptions:
+            self._execute(
+                """UPDATE consumos SET pago = TRUE
+                   WHERE codigo_cliente = %s AND data = %s AND sequencia = %s""",
+                (item.customer_id, item.date, item.sequence),
+            )
+        if entrance_adjustment:
+            entrance = account.consumptions[0]
+            self._execute(
+                """UPDATE consumos SET valor = valor + %s
+                   WHERE codigo_cliente = %s AND data = %s AND sequencia = %s""",
+                (entrance_adjustment, entrance.customer_id, entrance.date, entrance.sequence),
+            )
+
+
+class PostgresMonthlyBillingRepository(PostgresRepository):
+    def has_record(self, customer_id: int, reservation: Reservation, month: int, year: int) -> bool:
+        return bool(
+            self._one_value(
+                """SELECT EXISTS (SELECT 1 FROM mensalidades
+                   WHERE codigo_cliente = %s AND dia = %s AND horario = %s
+                     AND quadra = %s AND mes = %s AND ano = %s) AS gerada""",
+                (customer_id, reservation.weekday, reservation.time, reservation.court, month, year),
+            )
+        )
+
+    def record(self, customer_id: int, reservation: Reservation, month: int, year: int) -> None:
+        self._execute(
+            """INSERT INTO mensalidades (codigo_cliente, dia, horario, quadra, mes, ano)
+               VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING""",
+            (customer_id, reservation.weekday, reservation.time, reservation.court, month, year),
         )
 
     def has_fine_for_month(self, product_code: int, month: int, year: int) -> bool:
-        rows = self._all(
-            "SELECT data FROM consumos WHERE codigo_produto = %s ORDER BY data DESC",
-            (product_code,),
+        return bool(
+            self._one_value(
+                """SELECT EXISTS (SELECT 1 FROM consumos WHERE codigo_produto = %s
+                   AND EXTRACT(MONTH FROM data) = %s AND EXTRACT(YEAR FROM data) = %s)
+                   AS gerada""",
+                (product_code, month, year),
+            )
         )
-        return any(_legacy_month_year(row[0]) == (month, year) for row in rows)
 
     def monthly_paid(self, customer_id: int, month: int, year: int) -> bool:
-        rows = self._all(
-            """SELECT data FROM consumos
-               WHERE codigo_cliente = %s AND codigo_produto = -1 AND pago = TRUE
-               ORDER BY data DESC""",
-            (customer_id,),
+        return bool(
+            self._one_value(
+                """SELECT EXISTS (SELECT 1 FROM consumos
+                   WHERE codigo_cliente = %s AND codigo_produto = -1 AND pago = TRUE
+                     AND EXTRACT(MONTH FROM data) = %s AND EXTRACT(YEAR FROM data) = %s)
+                   AS paga""",
+                (customer_id, month, year),
+            )
         )
-        return any(_legacy_month_year(row[0]) == (month, year) for row in rows)
+
+
+class CsvTableExporter:
+    """Grava cada tabela em ``<tabela>_<AAAAMMDD_HHMMSS>.csv`` (RF16)."""
+
+    def __init__(self, database: PostgresDatabase) -> None:
+        self._database = database
+
+    def export_all(self, directory: Path, stamp: str) -> list[Path]:
+        written: list[Path] = []
+        with self._database.transaction() as connection:
+            for table in self._database.schema.table_names():
+                with connection.cursor() as cursor:
+                    cursor.execute(f"SELECT * FROM {table}")
+                    header = [column[0] for column in cursor.description]
+                    rows = cursor.fetchall()
+                path = directory / f"{table}_{stamp}.csv"
+                with path.open("w", newline="", encoding="utf-8") as handle:
+                    writer = csv.writer(handle, delimiter=";")
+                    writer.writerow(header)
+                    writer.writerows(rows)
+                written.append(path)
+        return written

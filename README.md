@@ -1,215 +1,171 @@
-# Dante Squash & Sauna — refatoração Python
+# Dante Squash & Sauna — reconstrução em Python (Entrega 2)
 
-## Relatório
+Sistema desktop para clube com sauna, três quadras de squash e venda de produtos,
+reconstruído em Python a partir dos requisitos (RF01–RF18) e regras de negócio
+(RN01–RN30) levantados na Entrega 1.
 
-Este trabalho cria uma implementação Python orientada a objetos do núcleo do
-Dante Squash & Sauna, mantendo o código Java original em `src/` como referência.
-O PDF anexado descreve 18 requisitos funcionais, 30 regras de negócio, a
-arquitetura em camadas e defeitos de comportamento que devem ser preservados até
-validação pelo cliente.
+- **Linguagem:** Python 3.10 ou superior
+- **Interface:** Tkinter (já vem com o Python no Windows)
+- **Banco de dados:** PostgreSQL 16 (recomendado rodar no Docker)
+- **Testes:** pytest, pytest-cov e Testcontainers
 
-### Arquitetura aplicada
+## 1. Arquitetura
 
-- **Domínio** (`dante_squash/domain.py`): entidades imutáveis, valores monetários
-  como `Decimal`, validações e regras sem dependência de interface ou banco.
-- **Aplicação** (`dante_squash/services/`): casos de uso para cadastros, consumo,
-  pagamentos, sauna, reservas e geração de mensalidades/multas.
-- **Portas** (`dante_squash/ports.py`): protocolos pequenos para repositórios e
-  unidade de trabalho.
-- **Infraestrutura** (`dante_squash/infrastructure/postgres.py`): adaptador
-  PostgreSQL com consultas parametrizadas e transação por caso de uso.
-- **Apresentação** (`dante_squash/presentation/tk_app.py`): interface desktop
-  Tkinter; ela chama serviços e não contém cálculos de negócio.
-
-As alterações seguem as recomendações do PDF: remoção de dependência de Swing
-nas regras, inversão de dependências, segregação de interfaces, consultas
-parametrizadas, recursos de banco limitados ao escopo da conexão e operações
-atômicas para pagamentos e cobranças. O esquema e os valores monetários no
-banco permanecem compatíveis com o legado (`INTEGER` para datas DDMMAAAA e
-`DOUBLE PRECISION` para valores); os tipos novos são usados no domínio para
-reduzir conversões espalhadas. Uma migração de esquema para `DATE`/`NUMERIC`
-deve ser planejada e validada separadamente sobre uma cópia anonimizada.
-
-### Funcionalidades Python nesta etapa
-
-- Cadastro/edição de clientes, produtos e tabela de valores.
-- Reservas semanais de squash, com confirmação antes de substituir horário.
-- Geração idempotente de mensalidades e geração de multas para reservas de jogo.
-- Registro de consumo de produtos por cliente e pagamentos totais/parciais,
-  incluindo desconto e saldo.
-- Entrada, consumo de produtos e fechamento de conta de frequentadores da sauna.
-- Criação segura das oito tabelas e da carga padrão, somente quando ausentes.
-
-Esta é uma migração inicial do núcleo e dos fluxos operacionais principais, não
-uma cópia visual tela a tela das 87 classes Java. A interface Python ainda não
-inclui a ficha do cliente, relatórios de fluxo/resumo mensal, exclusão de
-cadastros, backup/restauração nem administração manual do esquema. O menu Java
-original continua disponível em `src/` enquanto esses fluxos são migrados.
-
-### Comportamentos legados deliberadamente caracterizados
-
-Os defeitos D01, D02, D04 e D05 identificados no PDF não foram corrigidos nesta
-etapa:
-
-- D01: a existência da primeira multa impede gerar a segunda multa no mesmo mês.
-- D02: a leitura de datas de sete dígitos mantém o cálculo incorreto de mês/ano
-  nas verificações legadas de mensalidade/multa.
-- D04: o resultado do pagamento mantém comparação IEEE-754 (`double`) exata.
-- D05: `NaN` continua passando pela validação legado do valor pago.
-
-Esses comportamentos têm testes de caracterização. Alterá-los deve ser uma
-decisão separada, com aprovação da regra esperada e teste de regressão.
-
-## Executar pelo código-fonte (Windows e MariaDB)
-
-Cada integrante precisa ter Git (ou receber uma cópia atualizada do projeto),
-Python 3.10 ou superior, o servidor MariaDB ativo e acesso a um banco MariaDB.
-O pgAdmin é para PostgreSQL; para MariaDB use o cliente MariaDB ou outra
-ferramenta compatível.
-
-### 1. Preparar o banco
-
-Se cada integrante tiver MariaDB instalado na própria máquina, abra o cliente
-MariaDB como administrador (`root`) e crie um banco e usuário locais:
-
-```sql
-CREATE DATABASE IF NOT EXISTS dante_squash
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE USER IF NOT EXISTS 'dante_app'@'localhost'
-  IDENTIFIED BY 'DEFINA_UMA_SENHA_FORTE';
-
-GRANT ALL PRIVILEGES ON dante_squash.* TO 'dante_app'@'localhost';
+```
+dante_squash/
+├── domain.py            Entidades e regras puras (sem banco, sem interface)
+├── ports.py             Interfaces dos repositórios, relógio e exportação
+├── services/            Casos de uso (cadastros, sauna, squash, pagamentos, relatórios, backup)
+├── infrastructure/      PostgreSQL (repositórios, esquema, backup CSV) e relógio do sistema
+├── presentation/        Telas Tkinter; só chamam serviços
+├── composition.py       Cria e conecta todos os objetos (injeção de dependências)
+└── __main__.py          Ponto de entrada: python -m dante_squash
 ```
 
-Troque `DEFINA_UMA_SENHA_FORTE` antes de executar. Não use a conta `root` na
-aplicação e não compartilhe credenciais pelo chat, e-mail ou repositório.
+O sentido das dependências é `presentation → services → ports/domain`, e
+`infrastructure → ports/domain`. Os testes de arquitetura verificam isso
+automaticamente.
 
-Para a equipe compartilhar um único banco, o MariaDB deve estar em um
-computador/servidor acessível a todos. O administrador precisa criar uma conta
-MariaDB para cada integrante, autorizada apenas a partir do endereço de rede
-daquele integrante, conceder acesso somente a `dante_squash` e liberar a porta
-3306 apenas na rede confiável. Nesse caso, substitua `localhost` pelo endereço
-do servidor no DSN. **Não exponha a porta 3306 à internet.**
+**Nada estático.** Não há `@staticmethod`, `@classmethod`, funções soltas nem
+variáveis de módulo ou de classe no código do sistema. Constantes de negócio
+(códigos internos de produto, horários do squash, arredondamento de dinheiro)
+ficam em objetos criados na composição e injetados. Os testes de arquitetura
+também verificam essa regra.
 
-### 2. Baixar/abrir o projeto e instalar dependências
+## 2. Mudanças em relação à versão anterior do grupo
 
-No VS Code, abra a pasta do projeto. Abra **Terminal > Novo Terminal**, escolha
-PowerShell e mude para a pasta raiz do projeto (onde ficam `README.md` e
-`requirements.txt`). No computador do autor, por exemplo:
+| Item | Antes | Agora |
+| --- | --- | --- |
+| Banco | MariaDB (padrão) + PostgreSQL | Só PostgreSQL, como na Entrega 1 |
+| Datas e valores no banco | `INTEGER` DDMMAAAA e `DOUBLE PRECISION` | `DATE` e `NUMERIC(10,2)` |
+| Métodos estáticos | 10 `@staticmethod`/`@classmethod` e funções soltas | Nenhum |
+| Defeito D01 (2ª multa) | Bloqueada se a 1ª existisse | Corrigido: cada multa uma vez por mês |
+| Defeito D02 (datas dias 1–9) | Mês lido errado | Corrigido com `DATE` |
+| Defeito D03 (dia 31 no resumo) | Ficava fora | Corrigido: todos os dias do mês |
+| Defeito D04 (ponto flutuante) | Comparação de `double` | Corrigido com `Decimal` |
+| Defeito D05 (pagamento `NaN`) | Aceito | Corrigido: rejeitado |
+| Mensalidade de aula (antigo D08) | Sempre × 4 | Número real de aulas no mês |
+| Produto novo | Recebia código 0 e era rejeitado | Código gerado automaticamente (a partir de 2) |
+| Exclusão de cliente com reserva | Não verificada | Bloqueada com mensagem clara |
+| Funcionalidades | Faltavam RF10, RF13–RF16 e exclusões | Todas implementadas |
 
-```powershell
-Set-Location C:\Users\Acer\Desktop\DanteSquash
-Test-Path .\requirements.txt
-```
+## 3. Funcionalidades (abas da janela)
 
-`Test-Path` deve retornar `True`. Cada colega deve substituir o caminho acima
-pela pasta onde clonou ou descompactou o projeto. Não execute os comandos a
-partir de `C:\Windows\System32`.
+| Aba | Requisito |
+| --- | --- |
+| Sauna | RF06, RF07, RF08 |
+| Grade do squash | RF10 |
+| Reservas de squash | RF09 |
+| Mensalidades e multas | RF11, RF12 |
+| Clientes | RF01 |
+| Produtos | RF02 |
+| Valores | RF03 |
+| Consumos | RF04 |
+| Pagamentos | RF05 |
+| Ficha do cliente | RF13 |
+| Fluxo de caixa | RF14 |
+| Resumo mensal | RF15 |
+| Backup | RF16 |
 
-Crie um ambiente virtual e instale as dependências. A ativação do ambiente não
-é necessária:
+As tabelas e a carga padrão são criadas automaticamente ao iniciar (RF17, RF18).
+
+## 4. Instalação (Windows, PowerShell)
+
+Pré-requisitos: Python 3.10+, Docker Desktop aberto e Git (ou o .zip do projeto).
+
+Na pasta do projeto (onde está este README):
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
 
-### 3. Configurar a conexão e iniciar
+## 5. Executar o sistema
 
-Cole o bloco abaixo no **mesmo terminal PowerShell**. Quando solicitado, digite
-a senha criada para `dante_app`; a senha não será exibida nem ficará gravada no
-histórico do terminal. Este exemplo conecta ao MariaDB da própria máquina:
+### 5.1 Subir o PostgreSQL no Docker (uma vez)
 
 ```powershell
-$env:DANTE_SQUASH_DATABASE = "mariadb"
-$secure = Read-Host "Senha do usuario dante_app" -AsSecureString
-$pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-
-try {
-    $password = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
-    $encoded = [Uri]::EscapeDataString($password)
-    $env:DANTE_SQUASH_MARIADB_DSN = "mysql://dante_app:${encoded}@localhost:3306/dante_squash"
-    .\.venv\Scripts\python.exe -m dante_squash
-}
-finally {
-    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
-    Remove-Item Env:DANTE_SQUASH_MARIADB_DSN -ErrorAction SilentlyContinue
-    Remove-Variable password,encoded,secure,pointer -ErrorAction SilentlyContinue
-}
+docker run --name dante-postgres -e POSTGRES_USER=dante -e POSTGRES_PASSWORD=dante `
+  -e POSTGRES_DB=dante_squash -p 5432:5432 -d postgres:16-alpine
 ```
 
-Se a equipe usa um banco compartilhado, altere `localhost` no DSN para o nome
-ou endereço do servidor MariaDB e use o usuário/senha individual fornecido pelo
-administrador. O servidor precisa aceitar conexões daquela rede.
+Nas próximas vezes basta `docker start dante-postgres`. Essa senha simples serve
+só para o banco local de desenvolvimento.
 
-Ao fechar o aplicativo ou abrir outro terminal, execute novamente o bloco para
-definir a conexão nessa sessão. Na primeira execução, a aplicação cria as
-tabelas que estiverem ausentes e insere registros padrão. Ela não cria o banco,
-não converte dados PostgreSQL existentes e não altera as estruturas das tabelas
-que já existem. Faça backup e confirme o banco antes de iniciar.
-
-Para confirmar a criação, conecte ao banco `dante_squash` pelo cliente MariaDB
-e execute:
-
-```sql
-SHOW TABLES;
-```
-
-Para PostgreSQL, configure `DANTE_SQUASH_DATABASE=postgresql` e
-`DANTE_SQUASH_DSN` conforme o formato aceito pelo psycopg. Nunca grave DSNs ou
-credenciais no código-fonte.
-
-## Gerar executável Windows
-
-O executável não inclui o servidor MariaDB nem credenciais. Configure
-`DANTE_SQUASH_DATABASE=mariadb` e `DANTE_SQUASH_MARIADB_DSN` no Windows da
-máquina que vai executar o aplicativo. Para compilar em um ambiente Windows:
+### 5.2 Iniciar a aplicação
 
 ```powershell
-py -m pip install -r requirements-build.txt
-py -m PyInstaller --noconfirm --windowed --onefile --name DanteSquash --collect-submodules dante_squash dante_squash\__main__.py
+$env:DANTE_SQUASH_DSN = "postgresql://dante:dante@localhost:5432/dante_squash"
+.\.venv\Scripts\python.exe -m dante_squash
 ```
 
-O arquivo será criado em `dist\DanteSquash.exe`. Cada atualização do código
-exige gerar e distribuir um novo executável.
+Na primeira execução, configure a aba **Valores** antes de usar Sauna e Squash.
 
-## Testes
+## 6. Testes automatizados
 
-Os testes de caracterização começaram antes da implementação das regras do
-domínio e foram executados sem depender da interface gráfica ou de uma instância
-PostgreSQL:
+Com o Docker Desktop aberto:
 
 ```powershell
-py -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m pytest
 ```
 
-Cobrem validações de preço e reserva, mensalidades/aulas, faixas de multa,
-pagamento parcial/desconto, consumo, sauna, compatibilidade de datas e limites
-de dependência entre camadas. Testes de integração PostgreSQL continuam
-necessários para validar o DDL e as consultas contra uma instância real do
-MariaDB e do PostgreSQL.
+Os testes de banco sobem sozinhos um PostgreSQL descartável no Docker
+(Testcontainers) e não tocam no banco `dante_squash`. Sem Docker, eles são
+pulados com aviso. Para usar um PostgreSQL já existente, defina
+`DANTE_SQUASH_TEST_DSN` (o banco indicado é apagado e recriado a cada teste).
 
-## Arquivos para versionar
+### Por tipo
 
-Para executar a versão Python, versione `dante_squash/`, `requirements.txt`,
-`README.md` e `.gitignore`. Inclua também `tests/` para manter os testes e
-`requirements-build.txt` se o grupo for gerar executáveis. `src/` contém o
-programa Java legado e não é necessário para iniciar a aplicação Python; pode
-ser mantido no repositório se o grupo quiser preservar a implementação antiga.
-Não versione `.venv/`, `build/`, `dist/`, arquivos `.spec` gerados localmente,
-senhas/DSNs nem o JDK que possa estar dentro da pasta de legado Java.
-
-## Prompt original
-
-```text
-Atue como engenheiro de software
-
- - Preciso que realize uma refatoração deste código para a linguagem de programação python.
- - Para isso quero que siga as boas praticas de programação aplicando os principios de programação orientada a objetos.
- - Também aplique melhorias de arquitetura encontradas no pdf anexado.
-
-  Obs: As regras de negocio tem que manter as mesmas, então se possível antes de implementar crie testes TDD antes de refatorar para vermos se depois da refatoração os resultados são os mesmos.
-
-  No final gere um readme.md com um relatorio desta refatoração incluindo esse prompt que lhe foi enviado.
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/flow           # fluxo principal
+.\.venv\Scripts\python.exe -m pytest tests/database       # banco de dados
+.\.venv\Scripts\python.exe -m pytest tests/architecture   # arquitetura
+.\.venv\Scripts\python.exe -m pytest tests/gui            # interface gráfica
+.\.venv\Scripts\python.exe -m pytest tests/unit tests/business   # regras de negócio
 ```
+
+### Evidências (cobertura e relatório)
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --cov --cov-report=html --cov-report=term `
+  --junitxml=relatorios/resultado-testes.xml
+```
+
+Abra `htmlcov/index.html` para a cobertura e use `relatorios/resultado-testes.xml`
+como evidência da execução.
+
+### Organização e rastreabilidade
+
+| Pasta | Tipo | Casos da Entrega 1 |
+| --- | --- | --- |
+| `tests/unit` | Unidade (domínio puro) | CT03, regras de RN01, RN03, RN05, RN06, RN14, RN19, D04, D05, D08 |
+| `tests/business` | Regras pelos serviços, em memória **e** no PostgreSQL | CT04–CT12, CT14, CT17 |
+| `tests/flow` | Fluxo principal, de ponta a ponta | CT01, CT02 |
+| `tests/database` | Banco de dados real | CT13, CT15, CT16, backup |
+| `tests/architecture` | Arquitetura e "nada estático" | CT18, CT19, CT20 |
+| `tests/gui` | Interface gráfica (Tkinter real) | CT21–CT25 |
+
+Os testes de `tests/business` e `tests/flow` rodam duas vezes: no banco em
+memória (`tests/support/fakes.py`) e no PostgreSQL.
+
+## 7. Gerar executável (opcional)
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --windowed --onefile `
+  --name DanteSquash dante_squash\__main__.py
+```
+
+O executável fica em `dist\DanteSquash.exe` e continua precisando de
+`DANTE_SQUASH_DSN` e de um PostgreSQL acessível.
+
+## 8. Limitações conhecidas
+
+- Os dados do *dump* original (`base_dados_squash.sql`) não são migrados
+  automaticamente: o esquema novo usa `DATE` e `NUMERIC`. Além disso, o dump
+  contém dados pessoais reais e não deve ser usado como massa de teste (LGPD).
+- A restauração de backup não foi implementada: no sistema original ela também
+  não tinha opção no menu.
+- "Excluir esquema" (menu oculto no original) existe apenas para os testes
+  (`PostgresDatabase.drop_all`), não na interface.
+- A pasta `src/` contém o código Java original, mantido só como referência.
