@@ -1,0 +1,43 @@
+<testsuite name="12_backup.Backup das tabelas" tests="3" errors="0" failures="0" skipped="0" time="0.003069" timestamp="2026-11-26T14:23:42.058875" hostname="ARAGORN"><testcase classname="12_backup.Backup das tabelas" name="O backup usa a data e a hora atuais no nome dos arquivos" status="passed" time="0.002338"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_backup
+  Cenário: O backup usa a data e a hora atuais no nome dos arquivos
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que existe uma pasta para o backup ... passed in 0.002s
+    Quando eu faço o backup nessa pasta ... passed in 0.000s
+    Então a operação deve ser aceita ... passed in 0.000s
+    E o backup deve gerar o arquivo "clientes_20260312_103000.csv" ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="12_backup.Backup das tabelas" name="Outro dia gera outro carimbo" status="passed" time="0.000514"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_backup
+  Cenário: Outro dia gera outro carimbo
+    Dado que hoje é "01/04/2026" ... passed in 0.000s
+    E que existe uma pasta para o backup ... passed in 0.000s
+    Quando eu faço o backup nessa pasta ... passed in 0.000s
+    Então o backup deve gerar o arquivo "clientes_20260401_103000.csv" ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="12_backup.Backup das tabelas" name="Backup em pasta inexistente é recusado" status="passed" time="0.000217"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_backup
+  Cenário: Backup em pasta inexistente é recusado
+    Quando eu faço o backup na pasta "C:/pasta-que-nao-existe-dante" ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "Selecione uma pasta existente para o backup." ... passed in 0.000s
+    E nenhuma exportação deve ter sido feita ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase></testsuite>

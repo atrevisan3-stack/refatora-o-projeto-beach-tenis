@@ -1,0 +1,311 @@
+<testsuite name="11_relatorios.Relatórios de clientes, caixa e grade de quadras" tests="11" errors="0" failures="0" skipped="0" time="0.013327" timestamp="2026-11-26T14:23:42.050386" hostname="ARAGORN"><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="A ficha reúne reservas, histórico e total em aberto" status="passed" time="0.001568"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_ficha_cliente
+  Cenário: A ficha reúne reservas, histórico e total em aberto
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
+    E que as mensalidades já foram geradas em "12/03/2026" ... passed in 0.000s
+    E que o cliente 1 consumiu 2 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    Quando eu consulto a ficha do cliente 1 ... passed in 0.000s
+    Então a ficha deve listar 1 reservas ... passed in 0.000s
+    E o total em aberto da ficha deve ser 110,00 ... passed in 0.000s
+    E o histórico da ficha deve ter os lançamentos: ... passed in 0.000s
+      | descricao             | valor  | situacao  |
+      | Mensalidade do Squash | 100,00 | em aberto |
+      | Água mineral          | 10,00  | em aberto |
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="Depois de um pagamento parcial a ficha mostra só o saldo em aberto" status="passed" time="0.001111"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_ficha_cliente
+  Cenário: Depois de um pagamento parcial a ficha mostra só o saldo em aberto
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    E que o cliente 3 pagou 4,00 em "12/03/2026" ... passed in 0.000s
+    Quando eu consulto a ficha do cliente 3 ... passed in 0.000s
+    Então o total em aberto da ficha deve ser 6,00 ... passed in 0.000s
+    E o histórico da ficha deve ter os lançamentos: ... passed in 0.000s
+      | descricao          | valor | situacao  |
+      | Água mineral       | 10,00 | quitado   |
+      | Saldo de pagamento | 6,00  | em aberto |
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="Ficha de cliente inexistente é recusada" status="passed" time="0.00076"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_ficha_cliente
+  Cenário: Ficha de cliente inexistente é recusada
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Quando eu consulto a ficha do cliente 9 ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "Código de cliente não cadastrado!" ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="O fluxo de caixa separa sauna, squash e produtos em pago e em aberto" status="passed" time="0.001344"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_fluxo_caixa
+  Cenário: O fluxo de caixa separa sauna, squash e produtos em pago e em aberto
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
+    E que as mensalidades já foram geradas em "12/03/2026" ... passed in 0.000s
+    E que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    E que "Diego" já entrou na sauna hoje ... passed in 0.000s
+    E que o cliente 1 pagou 100,00 em "12/03/2026" ... passed in 0.000s
+    Quando eu consulto o fluxo de caixa de "12/03/2026" ... passed in 0.000s
+    Então o fluxo de caixa deve mostrar: ... passed in 0.000s
+      | categoria | pago   | em_aberto |
+      | Sauna     | 0,00   | 30,00     |
+      | Squash    | 100,00 | 100,00    |
+      | Produtos  | 0,00   | 10,00     |
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="Saldo de pagamento não entra no fluxo de caixa" status="passed" time="0.001674"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_fluxo_caixa
+  Cenário: Saldo de pagamento não entra no fluxo de caixa
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    E que o cliente 3 pagou 4,00 em "12/03/2026" ... passed in 0.000s
+    Quando eu consulto o fluxo de caixa de "12/03/2026" ... passed in 0.000s
+    Então o fluxo de caixa deve mostrar: ... passed in 0.000s
+      | categoria | pago  | em_aberto |
+      | Sauna     | 0,00  | 0,00      |
+      | Squash    | 0,00  | 0,00      |
+      | Produtos  | 10,00 | 0,00      |
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="A sauna entra no caixa pelo valor efetivamente pago" status="passed" time="0.001046"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_fluxo_caixa
+  Cenário: A sauna entra no caixa pelo valor efetivamente pago
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que "Diego" já entrou na sauna hoje ... passed in 0.000s
+    E que a conta de "Diego" foi fechada com pagamento de 25,00 ... passed in 0.000s
+    Quando eu consulto o fluxo de caixa de "12/03/2026" ... passed in 0.000s
+    Então o fluxo de caixa deve mostrar: ... passed in 0.000s
+      | categoria | pago  | em_aberto |
+      | Sauna     | 25,00 | 0,00      |
+      | Squash    | 0,00  | 0,00      |
+      | Produtos  | 0,00  | 0,00      |
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="O resumo mensal tem uma linha por dia, inclusive o dia 31" status="passed" time="0.000958"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_resumo_mensal @defeito_D03 @defeito_corrigido
+  Cenário: O resumo mensal tem uma linha por dia, inclusive o dia 31
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que o cliente 3 consumiu 1 unidades do produto 2 em "31/03/2026" ... passed in 0.000s
+    Quando eu gero o resumo mensal de 3/2026 ... passed in 0.000s
+    Então o resumo deve ter 31 dias ... passed in 0.000s
+    E no dia 31 o resumo deve mostrar vendido 5,00, pago 0,00 e a receber 5,00 ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="O resumo mensal soma o vendido e o pago de cada dia" status="passed" time="0.001284"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_resumo_mensal
+  Cenário: O resumo mensal soma o vendido e o pago de cada dia
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    E que o cliente 3 pagou 10,00 em "12/03/2026" ... passed in 0.000s
+    E que o cliente 1 consumiu 1 unidades do produto 2 em "12/03/2026" ... passed in 0.000s
+    Quando eu gero o resumo mensal de 3/2026 ... passed in 0.000s
+    Então no dia 12 o resumo deve mostrar vendido 15,00, pago 10,00 e a receber 5,00 ... passed in 0.000s
+    E no dia 13 o resumo deve mostrar vendido 0,00, pago 0,00 e a receber 0,00 ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="Fevereiro de ano não bissexto tem 28 dias no resumo" status="passed" time="0.000979"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_resumo_mensal
+  Cenário: Fevereiro de ano não bissexto tem 28 dias no resumo
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Quando eu gero o resumo mensal de 2/2026 ... passed in 0.000s
+    Então o resumo deve ter 28 dias ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="A grade do dia mostra os jogadores e marca as aulas" status="passed" time="0.001551"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_grade_dia
+  Cenário: A grade do dia mostra os jogadores e marca as aulas
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
+    E que existe uma aula na segunda-feira às "10:00" na quadra 2 para os clientes "3" ... passed in 0.000s
+    Quando eu consulto a grade de "16/03/2026" ... passed in 0.000s
+    Então na grade o horário "18:00" na quadra 1 deve mostrar "Ana, Bruno" ... passed in 0.000s
+    E na grade o horário "10:00" na quadra 2 deve mostrar "Carla (AULA)" ... passed in 0.000s
+    E na grade o horário "18:00" na quadra 2 deve estar livre ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="11_relatorios.Relatórios de clientes, caixa e grade de quadras" name="A grade de outro dia da semana não mostra as reservas de segunda" status="passed" time="0.001053"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_grade_dia
+  Cenário: A grade de outro dia da semana não mostra as reservas de segunda
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes: ... passed in 0.000s
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
+    Quando eu consulto a grade de "17/03/2026" ... passed in 0.000s
+    Então todos os horários da grade devem estar livres ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase></testsuite>

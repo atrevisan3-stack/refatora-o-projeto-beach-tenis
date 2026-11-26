@@ -31,8 +31,9 @@ def before_scenario(context, scenario) -> None:
     context.relogio = FixedClock(date(2026, 3, 12))
     context.erro = None
     context.resultado = None
+    context.exportador = RecordingExporter()
     servicos = ServiceFactory(
-        InMemoryUnitOfWorkFactory(context.banco), RecordingExporter(), context.relogio
+        InMemoryUnitOfWorkFactory(context.banco), context.exportador, context.relogio
     ).build()
     context.catalogo = servicos.catalog
     context.reservas = servicos.reservations
@@ -40,3 +41,5 @@ def before_scenario(context, scenario) -> None:
     context.pagamentos = servicos.payments
     context.cobranca = servicos.monthly_billing
     context.sauna = servicos.sauna
+    context.relatorios = servicos.reports
+    context.backup = servicos.backup

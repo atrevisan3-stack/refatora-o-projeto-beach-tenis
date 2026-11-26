@@ -1,4 +1,4 @@
-<testsuite name="09_sauna.Controle diário de frequentadores da sauna" tests="10" errors="0" failures="0" skipped="0" time="0.008884" timestamp="2026-11-26T14:10:16.928606" hostname="ARAGORN"><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Registrar a entrada lança o valor da sauna na conta" status="passed" time="0.000922"><system-out>
+<testsuite name="09_sauna.Controle diário de frequentadores da sauna" tests="10" errors="0" failures="0" skipped="0" time="0.006241" timestamp="2026-11-26T14:23:41.982091" hostname="ARAGORN"><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Registrar a entrada lança o valor da sauna na conta" status="passed" time="0.000757"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -17,7 +17,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador deve ser único no dia, sem diferenciar maiúsculas" status="passed" time="0.000769"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador deve ser único no dia, sem diferenciar maiúsculas" status="passed" time="0.000561"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -35,7 +35,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador é obrigatório" status="passed" time="0.000546"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador é obrigatório" status="passed" time="0.000505"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -52,7 +52,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo de produtos soma na conta do frequentador" status="passed" time="0.000789"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo de produtos soma na conta do frequentador" status="passed" time="0.000618"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -70,7 +70,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechar a conta quita todos os lançamentos" status="passed" time="0.001292"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechar a conta quita todos os lançamentos" status="passed" time="0.000861"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -90,7 +90,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Diferença no fechamento é ajustada na entrada" status="passed" time="0.001808"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Diferença no fechamento é ajustada na entrada" status="passed" time="0.000814"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -110,7 +110,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Conta fechada não aceita novos consumos" status="passed" time="0.000895"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Conta fechada não aceita novos consumos" status="passed" time="0.000658"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -129,7 +129,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechamento sem valor é recusado" status="passed" time="0.000778"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechamento sem valor é recusado" status="passed" time="0.000576"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -148,7 +148,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Só é possível alterar a sauna do dia de hoje" status="passed" time="0.000493"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Só é possível alterar a sauna do dia de hoje" status="passed" time="0.000447"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -165,7 +165,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo para frequentador inexistente é recusado" status="passed" time="0.000593"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo para frequentador inexistente é recusado" status="passed" time="0.000443"><system-out>
 <![CDATA[
 @scenario.begin
 

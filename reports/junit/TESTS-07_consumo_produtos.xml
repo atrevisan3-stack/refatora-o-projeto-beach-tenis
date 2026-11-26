@@ -1,4 +1,4 @@
-<testsuite name="07_consumo_produtos.Registro de consumo de produtos por cliente" tests="7" errors="0" failures="0" skipped="0" time="0.005235" timestamp="2026-11-26T14:10:16.891370" hostname="ARAGORN"><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Lançar consumo de produto para cliente cadastrado" status="passed" time="0.000827"><system-out>
+<testsuite name="07_consumo_produtos.Registro de consumo de produtos por cliente" tests="7" errors="0" failures="0" skipped="0" time="0.004894" timestamp="2026-11-26T14:23:41.952825" hostname="ARAGORN"><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Lançar consumo de produto para cliente cadastrado" status="passed" time="0.000607"><system-out>
 <![CDATA[
 @scenario.begin
   Cenário: Lançar consumo de produto para cliente cadastrado
@@ -13,7 +13,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos do mesmo dia recebem sequências diferentes" status="passed" time="0.001011"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos do mesmo dia recebem sequências diferentes" status="passed" time="0.000759"><system-out>
 <![CDATA[
 @scenario.begin
   Cenário: Consumos do mesmo dia recebem sequências diferentes
@@ -29,7 +29,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.1 " status="passed" time="0.000554"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.1 " status="passed" time="0.000428"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -46,7 +46,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.2 " status="passed" time="0.000689"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.2 " status="passed" time="0.000535"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -63,7 +63,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.3 " status="passed" time="0.000839"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.3 " status="passed" time="0.000531"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -80,7 +80,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.4 " status="passed" time="0.000626"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.4 " status="passed" time="0.000654"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -97,7 +97,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.5 " status="passed" time="0.00069"><system-out>
+</system-out></testcase><testcase classname="07_consumo_produtos.Registro de consumo de produtos por cliente" name="Consumos inválidos são recusados -- @1.5 " status="passed" time="0.001379"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -109,7 +109,7 @@
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
     Quando eu lanço 1 unidades do produto 99 para o cliente 1 em "12/03/2026" ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "O produto consumido deve estar cadastrado!" ... passed in 0.000s
-    E o cliente 1 deve ter um débito em aberto de 0,00 ... passed in 0.000s
+    E o cliente 1 deve ter um débito em aberto de 0,00 ... passed in 0.001s
 
 @scenario.end
 --------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-<testsuite name="01_cadastro_clientes.Cadastro de clientes" tests="6" errors="0" failures="0" skipped="0" time="0.00259" timestamp="2026-11-26T14:10:16.807437" hostname="ARAGORN"><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Cadastrar um cliente novo gera o próximo código disponível" status="passed" time="0.000698"><system-out>
+<testsuite name="01_cadastro_clientes.Cadastro de clientes" tests="6" errors="0" failures="0" skipped="0" time="0.00331" timestamp="2026-11-26T14:23:41.814434" hostname="ARAGORN"><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Cadastrar um cliente novo gera o próximo código disponível" status="passed" time="0.00098"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -12,7 +12,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Editar um cliente existente mantém o código" status="passed" time="0.000993"><system-out>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Editar um cliente existente mantém o código" status="passed" time="0.000727"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -26,7 +26,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome do cliente é obrigatório" status="passed" time="0.000257"><system-out>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome do cliente é obrigatório" status="passed" time="0.000377"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -39,7 +39,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.1 " status="passed" time="0.000172"><system-out>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.1 " status="passed" time="0.000263"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -51,7 +51,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.2 " status="passed" time="0.000167"><system-out>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.2 " status="passed" time="0.000306"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -63,7 +63,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome com exatamente 50 caracteres é aceito" status="passed" time="0.000302"><system-out>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome com exatamente 50 caracteres é aceito" status="passed" time="0.000656"><system-out>
 <![CDATA[
 @scenario.begin
 

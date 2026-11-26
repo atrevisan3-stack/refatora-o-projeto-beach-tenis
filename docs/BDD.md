@@ -9,7 +9,7 @@
 | Relatórios | saída `pretty` em texto e JUnit XML, que IDEs e pipelines de integração contínua conseguem ler |
 | Apoio de IA | Claude Code, para derivar os cenários das regras do código, escrever os passos e analisar as falhas |
 
-Os cenários passam pela **camada de serviços real** da aplicação: `CatalogService`, `ReservationService`, `ConsumptionService`, `PaymentService`, `MonthlyBillingService` e `SaunaService`. Os serviços são montados pela mesma raiz de composição da aplicação (`ServiceFactory` em `dante_squash/composition.py`), que também atende a interface Tkinter.
+Os cenários passam pela **camada de serviços real** da aplicação: `CatalogService`, `ReservationService`, `ConsumptionService`, `PaymentService`, `MonthlyBillingService`, `SaunaService`, `ReportService` e `BackupService`. Os serviços são montados pela mesma raiz de composição da aplicação (`ServiceFactory` em `dante_squash/composition.py`), que também atende a interface Tkinter.
 
 O banco é trocado pela **unidade de trabalho em memória** dos testes pytest, em [tests/support/fakes.py](../tests/support/fakes.py). Ela implementa as mesmas portas de `dante_squash/ports.py` que o adaptador PostgreSQL e desfaz as alterações quando um caso de uso falha, como um rollback. A data de hoje vem de um relógio fixo (`FixedClock`), que o passo `Dado que hoje é "..."` altera.
 
@@ -21,13 +21,15 @@ Assim os cenários rodam em menos de um segundo e não dependem de servidor de b
 behave.ini                       configuração (pasta features, idioma pt)
 requirements-bdd.txt             dependências para rodar o BDD
 features/
-  01_cadastro_clientes.feature   ... 09_sauna.feature   cenários Gherkin
+  01_cadastro_clientes.feature   ... 12_backup.feature  cenários Gherkin
   environment.py                 monta os serviços (ServiceFactory) sobre o banco em memória por cenário
   steps/
     comuns_steps.py              Dado de preparação, aceite e recusa com mensagem
     cadastros_steps.py           clientes, produtos e tabela de valores
     squash_steps.py              reservas, mensalidades e multas
     financeiro_steps.py          consumo, pagamentos e sauna
+    exclusoes_steps.py           exclusão de clientes, produtos, consumos, reservas e sauna
+    relatorios_steps.py          ficha do cliente, fluxo de caixa, resumo mensal, grade e backup
   support/
     tipos.py                     tipos de parâmetro: dinheiro "5,00", data "12/03/2026", dia da semana
     ajuda.py                     captura de BusinessRuleError e comparação de valores
@@ -49,7 +51,10 @@ Cada funcionalidade tem uma tag de requisito, por exemplo `@cadastro_clientes`. 
 | 07_consumo_produtos | `@consumo_produtos` | RF__ | cliente informado e cadastrado; quantidade maior que zero; produto cadastrado e não interno; sequência por dia | 7 |
 | 08_pagamentos | `@pagamentos` | RF__ | pagamento total; parcial com saldo em aberto; desconto lançado como crédito quitado; valor e cliente obrigatórios; nada é gravado quando recusado | 6 |
 | 09_sauna | `@sauna` | RF__ | entrada cobra o valor da sauna; nome único no dia sem diferenciar maiúsculas; consumo soma na conta; fechamento quita e ajusta a diferença; conta fechada não aceita consumo; só o dia de hoje | 10 |
-| **Total** | | | | **68** |
+| 10_exclusoes | `@exclusoes` | RF__ | cliente sem movimentação pode ser excluído, com consumo ou reserva não; produto nunca consumido pode ser excluído, consumido ou interno não; consumo pago não pode ser excluído; reserva excluída libera o horário; frequentador e consumo da sauna removidos só com a conta aberta; a entrada da sauna não pode ser excluída | 20 |
+| 11_relatorios | `@relatorios` | RF13, RF14, RF15, RF10 | ficha com reservas, histórico e total em aberto; caixa separado em sauna, squash e produtos, sem o saldo; sauna pelo valor pago; resumo com todos os dias do mês, inclusive o 31 (D03 corrigido); grade do dia com aulas marcadas | 11 |
+| 12_backup | `@backup` | RF16 | arquivos com data e hora da exportação; pasta inexistente recusada | 3 |
+| **Total** | | | | **102** |
 
 Para rodar apenas um requisito ou uma regra, use as tags:
 
@@ -81,9 +86,9 @@ Execução em 26/11/2026, com Python 3.15.0 e behave 1.3.3:
 
 | | Passaram | Falharam |
 |---|---|---|
-| Funcionalidades | 9 | 0 |
-| Cenários | 68 | 0 |
-| Passos | 319 | 0 |
+| Funcionalidades | 12 | 0 |
+| Cenários | 102 | 0 |
+| Passos | 586 | 0 |
 
 O relatório completo, passo a passo, está em [reports/bdd_resultado.txt](../reports/bdd_resultado.txt). O resumo está em [reports/bdd_resumo.txt](../reports/bdd_resumo.txt) e os arquivos JUnit em `reports/junit/`.
 

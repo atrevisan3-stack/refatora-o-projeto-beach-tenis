@@ -164,15 +164,17 @@ um segundo.
 
 | Caminho | Conteúdo |
 | --- | --- |
-| `features/*.feature` | 9 funcionalidades e 68 cenários |
+| `features/*.feature` | 12 funcionalidades e 102 cenários |
 | `features/steps/` | implementação dos passos |
 | `features/support/` | tipos de parâmetro (dinheiro, data, dia da semana) e utilitários |
 | `features/environment.py` | monta os serviços sobre um banco novo antes de cada cenário |
 | `reports/` | relatório texto e JUnit XML da última execução |
 | `docs/BDD.md` | metodologia, ligação cenário × requisito e análise dos resultados |
 
-Última execução (26/11/2026, behave 1.3.3): 9 funcionalidades, 68 cenários e
-319 passos, todos aprovados. O BDD encontrou um defeito real (não era possível
+Última execução (26/11/2026, behave 1.3.3): 12 funcionalidades, 102 cenários e
+586 passos, todos aprovados. Além dos cadastros, squash, pagamentos e sauna,
+os cenários cobrem exclusões, relatórios (ficha, caixa, resumo mensal e grade)
+e backup. O BDD encontrou um defeito real (não era possível
 cadastrar um produto novo pela interface), que já foi corrigido. Os cenários
 também verificam as correções de D01 e da mensalidade de aula. Os detalhes
 estão em `docs/BDD.md`.

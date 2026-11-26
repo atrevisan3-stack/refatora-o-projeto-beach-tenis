@@ -790,3 +790,599 @@ Funcionalidade: Controle diário de frequentadores da sauna # features/09_sauna.
     Quando "Diego" consome 1 unidades do produto 2 na sauna                             # features/steps/financeiro_steps.py:146
     Então o sistema deve recusar com a mensagem "Frequentador da sauna não encontrado." # features/steps/comuns_steps.py:54
 
+@exclusoes
+Funcionalidade: Exclusão de cadastros e lançamentos # features/10_exclusoes.feature:3
+  Como administrador
+  Quero excluir clientes, produtos, consumos, reservas e frequentadores da sauna
+  Sem apagar nada que já tenha movimentação ou que seja de uso interno
+  @exclusoes
+  Funcionalidade: Exclusão de cadastros e lançamentos  # features/10_exclusoes.feature:3
+
+  @regra_exclusao_cliente
+  Cenário: Excluir um cliente sem movimentação                              # features/10_exclusoes.feature:23
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Quando eu excluo o cliente 2                                            # features/steps/exclusoes_steps.py:19
+    Então a operação deve ser aceita                                        # features/steps/comuns_steps.py:49
+    E devem existir 1 clientes cadastrados                                  # features/steps/cadastros_steps.py:42
+
+  @regra_exclusao_cliente
+  Cenário: Cliente com consumo não pode ser excluído                                                                                      # features/10_exclusoes.feature:29
+    Dado que hoje é "12/03/2026"                                                                                                          # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                                                               # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                                                            # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                                                      # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                                                      # features/steps/comuns_steps.py:25
+    Dado que o cliente 1 consumiu 1 unidades do produto 2 em "12/03/2026"                                                                 # features/steps/financeiro_steps.py:21
+    Quando eu excluo o cliente 1                                                                                                          # features/steps/exclusoes_steps.py:19
+    Então o sistema deve recusar com a mensagem "Este cliente foi utilizado em consumos, pagamentos ou reservas e não pode ser excluído!" # features/steps/comuns_steps.py:54
+    E devem existir 2 clientes cadastrados                                                                                                # features/steps/cadastros_steps.py:42
+
+  @regra_exclusao_cliente
+  Cenário: Cliente com reserva não pode ser excluído                                                                                      # features/10_exclusoes.feature:36
+    Dado que hoje é "12/03/2026"                                                                                                          # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                                                               # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                                                            # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                                                      # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                                                      # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2"                                                # features/steps/squash_steps.py:25
+    Quando eu excluo o cliente 2                                                                                                          # features/steps/exclusoes_steps.py:19
+    Então o sistema deve recusar com a mensagem "Este cliente foi utilizado em consumos, pagamentos ou reservas e não pode ser excluído!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_cliente @regra_codigos_internos
+  Cenário: O cliente interno da sauna não pode ser excluído                              # features/10_exclusoes.feature:42
+    Dado que hoje é "12/03/2026"                                                         # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:              # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                           # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                     # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                     # features/steps/comuns_steps.py:25
+    Quando eu excluo o cliente 0                                                         # features/steps/exclusoes_steps.py:19
+    Então o sistema deve recusar com a mensagem "O cliente 0 é de uso interno da sauna!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_cliente
+  Cenário: Excluir cliente inexistente é recusado                                   # features/10_exclusoes.feature:47
+    Dado que hoje é "12/03/2026"                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                # features/steps/comuns_steps.py:25
+    Quando eu excluo o cliente 9                                                    # features/steps/exclusoes_steps.py:19
+    Então o sistema deve recusar com a mensagem "Código de cliente não cadastrado!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_produto
+  Cenário: Excluir um produto que nunca foi consumido                       # features/10_exclusoes.feature:54
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Quando eu excluo o produto 3                                            # features/steps/exclusoes_steps.py:24
+    Então a operação deve ser aceita                                        # features/steps/comuns_steps.py:49
+    E o produto "Refrigerante" não deve estar cadastrado                    # features/steps/exclusoes_steps.py:29
+
+  @regra_exclusao_produto
+  Cenário: Produto já consumido não pode ser excluído                                                             # features/10_exclusoes.feature:60
+    Dado que hoje é "12/03/2026"                                                                                  # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                                       # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                                    # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                              # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                              # features/steps/comuns_steps.py:25
+    Dado que o cliente 1 consumiu 1 unidades do produto 2 em "12/03/2026"                                         # features/steps/financeiro_steps.py:21
+    Quando eu excluo o produto 2                                                                                  # features/steps/exclusoes_steps.py:24
+    Então o sistema deve recusar com a mensagem "Este produto foi utilizado em consumos e não pode ser excluído!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_produto @regra_codigos_internos
+  Esquema do Cenário: Produtos internos não podem ser excluídos -- @1.1                             # features/10_exclusoes.feature:72
+    Dado que hoje é "12/03/2026"                                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                # features/steps/comuns_steps.py:25
+    Quando eu excluo o produto 0                                                                    # features/steps/exclusoes_steps.py:24
+    Então o sistema deve recusar com a mensagem "Os códigos 0 e 1 são de uso interno da aplicação!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_produto @regra_codigos_internos
+  Esquema do Cenário: Produtos internos não podem ser excluídos -- @1.2                             # features/10_exclusoes.feature:73
+    Dado que hoje é "12/03/2026"                                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                # features/steps/comuns_steps.py:25
+    Quando eu excluo o produto 1                                                                    # features/steps/exclusoes_steps.py:24
+    Então o sistema deve recusar com a mensagem "Os códigos 0 e 1 são de uso interno da aplicação!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_produto @regra_codigos_internos
+  Esquema do Cenário: Produtos internos não podem ser excluídos -- @1.3                             # features/10_exclusoes.feature:74
+    Dado que hoje é "12/03/2026"                                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                # features/steps/comuns_steps.py:25
+    Quando eu excluo o produto -1                                                                   # features/steps/exclusoes_steps.py:24
+    Então o sistema deve recusar com a mensagem "Os códigos 0 e 1 são de uso interno da aplicação!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_produto
+  Cenário: Excluir produto inexistente é recusado                                   # features/10_exclusoes.feature:77
+    Dado que hoje é "12/03/2026"                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                # features/steps/comuns_steps.py:25
+    Quando eu excluo o produto 9                                                    # features/steps/exclusoes_steps.py:24
+    Então o sistema deve recusar com a mensagem "Código de produto não cadastrado!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_consumo
+  Cenário: Excluir um consumo em aberto                                     # features/10_exclusoes.feature:84
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Dado que o cliente 1 consumiu 2 unidades do produto 2 em "12/03/2026"   # features/steps/financeiro_steps.py:21
+    Quando eu excluo o consumo de sequência 1 do cliente 1 em "12/03/2026"  # features/steps/exclusoes_steps.py:35
+    Então a operação deve ser aceita                                        # features/steps/comuns_steps.py:49
+    E o cliente 1 deve ter um débito em aberto de 0,00                      # features/steps/financeiro_steps.py:37
+
+  @regra_exclusao_consumo
+  Cenário: Consumo já pago não pode ser excluído                                                         # features/10_exclusoes.feature:91
+    Dado que hoje é "12/03/2026"                                                                         # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                              # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                           # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                                     # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                                     # features/steps/comuns_steps.py:25
+    Dado que o cliente 1 consumiu 2 unidades do produto 2 em "12/03/2026"                                # features/steps/financeiro_steps.py:21
+    E que o cliente 1 pagou 10,00 em "12/03/2026"                                                        # features/steps/exclusoes_steps.py:12
+    Quando eu excluo o consumo de sequência 1 do cliente 1 em "12/03/2026"                               # features/steps/exclusoes_steps.py:35
+    Então o sistema deve recusar com a mensagem "Este consumo já foi pago e não pode ser mais excluído!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_consumo
+  Cenário: Excluir consumo inexistente é recusado                           # features/10_exclusoes.feature:98
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Quando eu excluo o consumo de sequência 5 do cliente 1 em "12/03/2026"  # features/steps/exclusoes_steps.py:35
+    Então o sistema deve recusar com a mensagem "Consumo não encontrado!"   # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_reserva
+  Cenário: Excluir uma reserva libera o horário                                            # features/10_exclusoes.feature:105
+    Dado que hoje é "12/03/2026"                                                           # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                             # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                       # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                       # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
+    Quando eu excluo a reserva na segunda-feira às "18:00" na quadra 1                     # features/steps/exclusoes_steps.py:40
+    Então a operação deve ser aceita                                                       # features/steps/comuns_steps.py:49
+    E deve existir 0 reserva na grade                                                      # features/steps/squash_steps.py:53
+
+  @regra_exclusao_reserva
+  Cenário: Excluir reserva inexistente é recusado                           # features/10_exclusoes.feature:112
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Quando eu excluo a reserva na terça-feira às "10:00" na quadra 2        # features/steps/exclusoes_steps.py:40
+    Então o sistema deve recusar com a mensagem "Reserva não encontrada!"   # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_sauna
+  Cenário: Remover um frequentador com a conta aberta                       # features/10_exclusoes.feature:119
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Dado que "Diego" já entrou na sauna hoje                                # features/steps/financeiro_steps.py:124
+    E que "Diego" consumiu 1 unidades do produto 2 na sauna                 # features/steps/financeiro_steps.py:129
+    Quando eu removo "Diego" da sauna                                       # features/steps/exclusoes_steps.py:45
+    Então a operação deve ser aceita                                        # features/steps/comuns_steps.py:49
+    E não deve existir conta de "Diego" na sauna                            # features/steps/exclusoes_steps.py:58
+
+  @regra_exclusao_sauna
+  Cenário: Excluir um consumo de produto da conta da sauna                  # features/10_exclusoes.feature:127
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00        # features/steps/comuns_steps.py:25
+    Dado que "Diego" já entrou na sauna hoje                                # features/steps/financeiro_steps.py:124
+    E que "Diego" consumiu 2 unidades do produto 2 na sauna                 # features/steps/financeiro_steps.py:129
+    Quando eu excluo o consumo de sequência 2 da conta de "Diego" na sauna  # features/steps/exclusoes_steps.py:50
+    Então a operação deve ser aceita                                        # features/steps/comuns_steps.py:49
+    E a conta de "Diego" na sauna deve totalizar 30,00                      # features/steps/financeiro_steps.py:161
+
+  @regra_exclusao_sauna
+  Cenário: A entrada da sauna não pode ser excluída                                         # features/10_exclusoes.feature:135
+    Dado que hoje é "12/03/2026"                                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                 # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                        # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                        # features/steps/comuns_steps.py:25
+    Dado que "Diego" já entrou na sauna hoje                                                # features/steps/financeiro_steps.py:124
+    Quando eu excluo o consumo de sequência 1 da conta de "Diego" na sauna                  # features/steps/exclusoes_steps.py:50
+    Então o sistema deve recusar com a mensagem "A entrada da sauna não pode ser excluída!" # features/steps/comuns_steps.py:54
+
+  @regra_exclusao_sauna
+  Cenário: Conta fechada não permite remover o frequentador                                    # features/10_exclusoes.feature:141
+    Dado que hoje é "12/03/2026"                                                               # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                    # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+    E que existem os clientes:                                                                 # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                           # features/steps/comuns_steps.py:25
+    E que existe o produto "Refrigerante" de código 3 com preço 7,00                           # features/steps/comuns_steps.py:25
+    Dado que "Diego" já entrou na sauna hoje                                                   # features/steps/financeiro_steps.py:124
+    E que a conta de "Diego" foi fechada com pagamento de 30,00                                # features/steps/financeiro_steps.py:136
+    Quando eu removo "Diego" da sauna                                                          # features/steps/exclusoes_steps.py:45
+    Então o sistema deve recusar com a mensagem "A conta deste frequentador já foi encerrada!" # features/steps/comuns_steps.py:54
+
+@relatorios
+Funcionalidade: Relatórios de clientes, caixa e grade de quadras # features/11_relatorios.feature:3
+  Como administrador
+  Quero consultar a ficha do cliente, o fluxo de caixa, o resumo mensal e a grade do dia
+  Para acompanhar o que foi vendido, o que foi pago e o que falta receber
+  @relatorios
+  Funcionalidade: Relatórios de clientes, caixa e grade de quadras  # features/11_relatorios.feature:3
+
+  @regra_ficha_cliente
+  Cenário: A ficha reúne reservas, histórico e total em aberto                             # features/11_relatorios.feature:25
+    Dado que hoje é "12/03/2026"                                                           # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                             # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                       # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
+    E que as mensalidades já foram geradas em "12/03/2026"                                 # features/steps/squash_steps.py:77
+    E que o cliente 1 consumiu 2 unidades do produto 2 em "12/03/2026"                     # features/steps/financeiro_steps.py:21
+    Quando eu consulto a ficha do cliente 1                                                # features/steps/relatorios_steps.py:18
+    Então a ficha deve listar 1 reservas                                                   # features/steps/relatorios_steps.py:28
+    E o total em aberto da ficha deve ser 110,00                                           # features/steps/relatorios_steps.py:34
+    E o histórico da ficha deve ter os lançamentos:                                        # features/steps/relatorios_steps.py:39
+      | descricao             | valor  | situacao  |
+      | Mensalidade do Squash | 100,00 | em aberto |
+      | Água mineral          | 10,00  | em aberto |
+
+  @regra_ficha_cliente
+  Cenário: Depois de um pagamento parcial a ficha mostra só o saldo em aberto  # features/11_relatorios.feature:38
+    Dado que hoje é "12/03/2026"                                               # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:    # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                 # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00           # features/steps/comuns_steps.py:25
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026"      # features/steps/financeiro_steps.py:21
+    E que o cliente 3 pagou 4,00 em "12/03/2026"                               # features/steps/exclusoes_steps.py:12
+    Quando eu consulto a ficha do cliente 3                                    # features/steps/relatorios_steps.py:18
+    Então o total em aberto da ficha deve ser 6,00                             # features/steps/relatorios_steps.py:34
+    E o histórico da ficha deve ter os lançamentos:                            # features/steps/relatorios_steps.py:39
+      | descricao          | valor | situacao  |
+      | Água mineral       | 10,00 | quitado   |
+      | Saldo de pagamento | 6,00  | em aberto |
+
+  @regra_ficha_cliente
+  Cenário: Ficha de cliente inexistente é recusada                                  # features/11_relatorios.feature:49
+    Dado que hoje é "12/03/2026"                                                    # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:         # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                      # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                # features/steps/comuns_steps.py:25
+    Quando eu consulto a ficha do cliente 9                                         # features/steps/relatorios_steps.py:18
+    Então o sistema deve recusar com a mensagem "Código de cliente não cadastrado!" # features/steps/comuns_steps.py:54
+
+  @regra_fluxo_caixa
+  Cenário: O fluxo de caixa separa sauna, squash e produtos em pago e em aberto            # features/11_relatorios.feature:56
+    Dado que hoje é "12/03/2026"                                                           # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                             # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                       # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
+    E que as mensalidades já foram geradas em "12/03/2026"                                 # features/steps/squash_steps.py:77
+    E que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026"                     # features/steps/financeiro_steps.py:21
+    E que "Diego" já entrou na sauna hoje                                                  # features/steps/financeiro_steps.py:124
+    E que o cliente 1 pagou 100,00 em "12/03/2026"                                         # features/steps/exclusoes_steps.py:12
+    Quando eu consulto o fluxo de caixa de "12/03/2026"                                    # features/steps/relatorios_steps.py:51
+    Então o fluxo de caixa deve mostrar:                                                   # features/steps/relatorios_steps.py:56
+      | categoria | pago   | em_aberto |
+      | Sauna     | 0,00   | 30,00     |
+      | Squash    | 100,00 | 100,00    |
+      | Produtos  | 0,00   | 10,00     |
+
+  @regra_fluxo_caixa
+  Cenário: Saldo de pagamento não entra no fluxo de caixa                   # features/11_relatorios.feature:70
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026"   # features/steps/financeiro_steps.py:21
+    E que o cliente 3 pagou 4,00 em "12/03/2026"                            # features/steps/exclusoes_steps.py:12
+    Quando eu consulto o fluxo de caixa de "12/03/2026"                     # features/steps/relatorios_steps.py:51
+    Então o fluxo de caixa deve mostrar:                                    # features/steps/relatorios_steps.py:56
+      | categoria | pago  | em_aberto |
+      | Sauna     | 0,00  | 0,00      |
+      | Squash    | 0,00  | 0,00      |
+      | Produtos  | 10,00 | 0,00      |
+
+  @regra_fluxo_caixa
+  Cenário: A sauna entra no caixa pelo valor efetivamente pago              # features/11_relatorios.feature:81
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    Dado que "Diego" já entrou na sauna hoje                                # features/steps/financeiro_steps.py:124
+    E que a conta de "Diego" foi fechada com pagamento de 25,00             # features/steps/financeiro_steps.py:136
+    Quando eu consulto o fluxo de caixa de "12/03/2026"                     # features/steps/relatorios_steps.py:51
+    Então o fluxo de caixa deve mostrar:                                    # features/steps/relatorios_steps.py:56
+      | categoria | pago  | em_aberto |
+      | Sauna     | 25,00 | 0,00      |
+      | Squash    | 0,00  | 0,00      |
+      | Produtos  | 0,00  | 0,00      |
+
+  @regra_resumo_mensal @defeito_D03 @defeito_corrigido
+  Cenário: O resumo mensal tem uma linha por dia, inclusive o dia 31           # features/11_relatorios.feature:94
+    Dado que hoje é "12/03/2026"                                               # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:    # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                 # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00           # features/steps/comuns_steps.py:25
+    Dado que o cliente 3 consumiu 1 unidades do produto 2 em "31/03/2026"      # features/steps/financeiro_steps.py:21
+    Quando eu gero o resumo mensal de 3/2026                                   # features/steps/relatorios_steps.py:69
+    Então o resumo deve ter 31 dias                                            # features/steps/relatorios_steps.py:74
+    E no dia 31 o resumo deve mostrar vendido 5,00, pago 0,00 e a receber 5,00 # features/steps/relatorios_steps.py:80
+
+  @regra_resumo_mensal
+  Cenário: O resumo mensal soma o vendido e o pago de cada dia                       # features/11_relatorios.feature:101
+    Dado que hoje é "12/03/2026"                                                     # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:          # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                       # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                 # features/steps/comuns_steps.py:25
+    Dado que o cliente 3 consumiu 2 unidades do produto 2 em "12/03/2026"            # features/steps/financeiro_steps.py:21
+    E que o cliente 3 pagou 10,00 em "12/03/2026"                                    # features/steps/exclusoes_steps.py:12
+    E que o cliente 1 consumiu 1 unidades do produto 2 em "12/03/2026"               # features/steps/financeiro_steps.py:21
+    Quando eu gero o resumo mensal de 3/2026                                         # features/steps/relatorios_steps.py:69
+    Então no dia 12 o resumo deve mostrar vendido 15,00, pago 10,00 e a receber 5,00 # features/steps/relatorios_steps.py:80
+    E no dia 13 o resumo deve mostrar vendido 0,00, pago 0,00 e a receber 0,00       # features/steps/relatorios_steps.py:80
+
+  @regra_resumo_mensal
+  Cenário: Fevereiro de ano não bissexto tem 28 dias no resumo              # features/11_relatorios.feature:110
+    Dado que hoje é "12/03/2026"                                            # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                              # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00        # features/steps/comuns_steps.py:25
+    Quando eu gero o resumo mensal de 2/2026                                # features/steps/relatorios_steps.py:69
+    Então o resumo deve ter 28 dias                                         # features/steps/relatorios_steps.py:74
+
+  @regra_grade_dia
+  Cenário: A grade do dia mostra os jogadores e marca as aulas                             # features/11_relatorios.feature:117
+    Dado que hoje é "12/03/2026"                                                           # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                             # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                       # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
+    E que existe uma aula na segunda-feira às "10:00" na quadra 2 para os clientes "3"     # features/steps/squash_steps.py:25
+    Quando eu consulto a grade de "16/03/2026"                                             # features/steps/relatorios_steps.py:94
+    Então na grade o horário "18:00" na quadra 1 deve mostrar "Ana, Bruno"                 # features/steps/relatorios_steps.py:105
+    E na grade o horário "10:00" na quadra 2 deve mostrar "Carla (AULA)"                   # features/steps/relatorios_steps.py:105
+    E na grade o horário "18:00" na quadra 2 deve estar livre                              # features/steps/relatorios_steps.py:111
+
+  @regra_grade_dia
+  Cenário: A grade de outro dia da semana não mostra as reservas de segunda                # features/11_relatorios.feature:126
+    Dado que hoje é "12/03/2026"                                                           # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                # features/steps/comuns_steps.py:30
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    E que existem os clientes:                                                             # features/steps/comuns_steps.py:14
+      | codigo | nome  |
+      | 1      | Ana   |
+      | 2      | Bruno |
+      | 3      | Carla |
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                       # features/steps/comuns_steps.py:25
+    Dado que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
+    Quando eu consulto a grade de "17/03/2026"                                             # features/steps/relatorios_steps.py:94
+    Então todos os horários da grade devem estar livres                                    # features/steps/relatorios_steps.py:117
+
+@backup
+Funcionalidade: Backup das tabelas # features/12_backup.feature:3
+  Como administrador
+  Quero exportar as tabelas do banco para uma pasta
+  Para guardar uma cópia dos dados com a data e a hora da exportação
+  @regra_backup
+  Cenário: O backup usa a data e a hora atuais no nome dos arquivos  # features/12_backup.feature:9
+    Dado que hoje é "12/03/2026"                                     # features/steps/comuns_steps.py:42
+    E que existe uma pasta para o backup                             # features/steps/relatorios_steps.py:125
+    Quando eu faço o backup nessa pasta                              # features/steps/relatorios_steps.py:132
+    Então a operação deve ser aceita                                 # features/steps/comuns_steps.py:49
+    E o backup deve gerar o arquivo "clientes_20260312_103000.csv"   # features/steps/relatorios_steps.py:142
+
+  @regra_backup
+  Cenário: Outro dia gera outro carimbo                                # features/12_backup.feature:17
+    Dado que hoje é "01/04/2026"                                       # features/steps/comuns_steps.py:42
+    E que existe uma pasta para o backup                               # features/steps/relatorios_steps.py:125
+    Quando eu faço o backup nessa pasta                                # features/steps/relatorios_steps.py:132
+    Então o backup deve gerar o arquivo "clientes_20260401_103000.csv" # features/steps/relatorios_steps.py:142
+
+  @regra_backup
+  Cenário: Backup em pasta inexistente é recusado                                              # features/12_backup.feature:24
+    Quando eu faço o backup na pasta "C:/pasta-que-nao-existe-dante"                           # features/steps/relatorios_steps.py:137
+    Então o sistema deve recusar com a mensagem "Selecione uma pasta existente para o backup." # features/steps/comuns_steps.py:54
+    E nenhuma exportação deve ter sido feita                                                   # features/steps/relatorios_steps.py:149
+

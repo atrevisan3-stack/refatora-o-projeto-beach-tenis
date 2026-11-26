@@ -1,4 +1,4 @@
-<testsuite name="06_multas.Geração de multas por atraso da mensalidade de jogo" tests="7" errors="0" failures="0" skipped="0" time="0.008029" timestamp="2026-11-26T14:10:16.874177" hostname="ARAGORN"><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Primeira multa entre o segundo e o terceiro vencimento" status="passed" time="0.001251"><system-out>
+<testsuite name="06_multas.Geração de multas por atraso da mensalidade de jogo" tests="7" errors="0" failures="0" skipped="0" time="0.008594" timestamp="2026-11-26T14:23:41.939292" hostname="ARAGORN"><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Primeira multa entre o segundo e o terceiro vencimento" status="passed" time="0.001989"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -23,7 +23,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Segunda multa a partir do terceiro vencimento" status="passed" time="0.000902"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Segunda multa a partir do terceiro vencimento" status="passed" time="0.001388"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -47,7 +47,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Multas fora do período de cobrança são recusadas" status="passed" time="0.000875"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Multas fora do período de cobrança são recusadas" status="passed" time="0.001"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -71,7 +71,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="A mesma multa não é gerada duas vezes no mês" status="passed" time="0.000928"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="A mesma multa não é gerada duas vezes no mês" status="passed" time="0.000923"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -95,7 +95,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="D01 corrigido - a primeira multa não impede a segunda no mesmo mês" status="passed" time="0.00169"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="D01 corrigido - a primeira multa não impede a segunda no mesmo mês" status="passed" time="0.00113"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -121,7 +121,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Cliente que pagou a mensalidade do mês não recebe multa" status="passed" time="0.001332"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Cliente que pagou a mensalidade do mês não recebe multa" status="passed" time="0.001233"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -147,7 +147,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Reservas de aula não recebem multa" status="passed" time="0.001051"><system-out>
+</system-out></testcase><testcase classname="06_multas.Geração de multas por atraso da mensalidade de jogo" name="Reservas de aula não recebem multa" status="passed" time="0.00093"><system-out>
 <![CDATA[
 @scenario.begin
 
