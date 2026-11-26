@@ -1,0 +1,22 @@
+[project]
+name = "dante-squash"
+version = "2.0.0"
+description = "Dante Squash & Sauna — reconstrução em Python (Trabalho Final, Entrega 2)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    "db: testes que exigem PostgreSQL (Docker ou DANTE_SQUASH_TEST_DSN)",
+    "gui: testes da interface Tkinter",
+]
+
+[tool.coverage.run]
+source = ["dante_squash"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

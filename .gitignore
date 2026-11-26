@@ -15,5 +15,10 @@ __pycache__/
 !.env.example
 *.log
 
-# Bundled JDK found inside the legacy Java source tree; not needed by the app
 /src/dao/bd/oracleJdk-27/
+
+# Testes e evidências geradas
+.pytest_cache/
+.coverage
+htmlcov/
+relatorios/
