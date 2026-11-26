@@ -29,9 +29,9 @@ Funcionalidade: Cadastro de clientes # features/01_cadastro_clientes.feature:3
     Então o sistema deve recusar com a mensagem "O nome do cliente deve ter no máximo 50 caracteres!" # features/steps/comuns_steps.py:54
 
   @regra_tamanho_campos
-  Esquema do Cenário: Campos do cliente respeitam o tamanho máximo -- @1.2                         # features/01_cadastro_clientes.feature:36
-    Quando eu cadastro um cliente com nome de 10 caracteres e CPF "123456789012"                   # features/steps/cadastros_steps.py:19
-    Então o sistema deve recusar com a mensagem "Os dados do cliente excedem o tamanho permitido." # features/steps/comuns_steps.py:54
+  Esquema do Cenário: Campos do cliente respeitam o tamanho máximo -- @1.2                # features/01_cadastro_clientes.feature:36
+    Quando eu cadastro um cliente com nome de 10 caracteres e CPF "123456789012"          # features/steps/cadastros_steps.py:19
+    Então o sistema deve recusar com a mensagem "O CPF deve ter no máximo 11 caracteres!" # features/steps/comuns_steps.py:54
 
   @regra_tamanho_campos
   Cenário: Nome com exatamente 50 caracteres é aceito                # features/01_cadastro_clientes.feature:39
@@ -44,12 +44,10 @@ Funcionalidade: Cadastro de produtos # features/02_cadastro_produtos.feature:3
   Como administrador
   Quero manter os produtos vendidos no bar e na sauna
   Para que os consumos sejam cobrados pelo preço correto
-  @regra_codigo_automatico @defeito_encontrado
+  @regra_codigo_automatico @defeito_corrigido
   Cenário: Cadastrar um produto válido                                             # features/02_cadastro_produtos.feature:12
     Quando eu cadastro o produto "Água mineral" com preço 5,00 e unidade "un"      # features/steps/cadastros_steps.py:50
     Então o produto "Água mineral" deve estar cadastrado com código 2 e preço 5,00 # features/steps/cadastros_steps.py:68
-      ASSERT FAILED: O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da aplicação!
-
 
   @regra_validacao_produto
   Esquema do Cenário: Dados inválidos do produto são recusados -- @1.1                       # features/02_cadastro_produtos.feature:23
@@ -121,49 +119,49 @@ Funcionalidade: Tabela de valores e vencimentos # features/03_tabela_valores.fea
     E nenhuma tabela de valores deve estar gravada                                         # features/steps/cadastros_steps.py:99
 
   @regra_validacao_valores
-  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.3                     # features/03_tabela_valores.feature:37
-    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:              # features/steps/cadastros_steps.py:81
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.3                                   # features/03_tabela_valores.feature:37
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:                            # features/steps/cadastros_steps.py:81
       | dia | valor  |
       | 0   | 200,00 |
       | 20  | 220,00 |
-    Então o sistema deve recusar com a mensagem "Os vencimentos devem estar entre os dias 1 e 28." # features/steps/comuns_steps.py:54
-    E nenhuma tabela de valores deve estar gravada                                                 # features/steps/cadastros_steps.py:99
+    Então o sistema deve recusar com a mensagem "O vencimento 1 e o valor mensal 1 devem ser informados juntos!" # features/steps/comuns_steps.py:54
+    E nenhuma tabela de valores deve estar gravada                                                               # features/steps/cadastros_steps.py:99
 
   @regra_validacao_valores
-  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.4                     # features/03_tabela_valores.feature:38
-    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:              # features/steps/cadastros_steps.py:81
-      | dia | valor  |
-      | 10  | 200,00 |
-      | 29  | 220,00 |
-    Então o sistema deve recusar com a mensagem "Os vencimentos devem estar entre os dias 1 e 28." # features/steps/comuns_steps.py:54
-    E nenhuma tabela de valores deve estar gravada                                                 # features/steps/cadastros_steps.py:99
-
-  @regra_validacao_valores
-  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.5         # features/03_tabela_valores.feature:39
-    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:  # features/steps/cadastros_steps.py:81
-      | dia | valor  |
-      | 10  | 200,00 |
-      | 10  | 220,00 |
-    Então o sistema deve recusar com a mensagem "Os vencimentos devem ser diferentes." # features/steps/comuns_steps.py:54
-    E nenhuma tabela de valores deve estar gravada                                     # features/steps/cadastros_steps.py:99
-
-  @regra_validacao_valores
-  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.6                           # features/03_tabela_valores.feature:40
-    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:                    # features/steps/cadastros_steps.py:81
-      | dia | valor  |
-      | 10  | 200,00 |
-      | 20  | vazio  |
-    Então o sistema deve recusar com a mensagem "Dia e valor do vencimento devem ser informados juntos." # features/steps/comuns_steps.py:54
-    E nenhuma tabela de valores deve estar gravada                                                       # features/steps/cadastros_steps.py:99
-
-  @regra_validacao_valores
-  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.7                    # features/03_tabela_valores.feature:41
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.4                    # features/03_tabela_valores.feature:38
     Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:             # features/steps/cadastros_steps.py:81
       | dia | valor  |
       | 10  | 200,00 |
-      | 20  | 0,00   |
-    Então o sistema deve recusar com a mensagem "O valor da mensalidade deve ser maior que zero." # features/steps/comuns_steps.py:54
+      | 29  | 220,00 |
+    Então o sistema deve recusar com a mensagem "O vencimento 2 deve estar entre os dias 1 e 28!" # features/steps/comuns_steps.py:54
     E nenhuma tabela de valores deve estar gravada                                                # features/steps/cadastros_steps.py:99
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.5                # features/03_tabela_valores.feature:39
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:         # features/steps/cadastros_steps.py:81
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 10  | 220,00 |
+    Então o sistema deve recusar com a mensagem "Os dias de vencimento devem ser diferentes!" # features/steps/comuns_steps.py:54
+    E nenhuma tabela de valores deve estar gravada                                            # features/steps/cadastros_steps.py:99
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.6                                   # features/03_tabela_valores.feature:40
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:                            # features/steps/cadastros_steps.py:81
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | vazio  |
+    Então o sistema deve recusar com a mensagem "O vencimento 2 e o valor mensal 2 devem ser informados juntos!" # features/steps/comuns_steps.py:54
+    E nenhuma tabela de valores deve estar gravada                                                               # features/steps/cadastros_steps.py:99
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.7              # features/03_tabela_valores.feature:41
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos:       # features/steps/cadastros_steps.py:81
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 0,00   |
+    Então o sistema deve recusar com a mensagem "O valor mensal 2 deve ser maior que zero!" # features/steps/comuns_steps.py:54
+    E nenhuma tabela de valores deve estar gravada                                          # features/steps/cadastros_steps.py:99
 
 @reservas_squash
 Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_squash.feature:3
@@ -194,15 +192,15 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
     E deve existir 1 reserva na grade                                                      # features/steps/squash_steps.py:53
 
   @regra_aula_individual
-  Cenário: Aula só pode ter um cliente                                                                     # features/04_reservas_squash.feature:26
-    Dado que existem os clientes:                                                                          # features/steps/comuns_steps.py:14
+  Cenário: Aula só pode ter um cliente                                                                                      # features/04_reservas_squash.feature:26
+    Dado que existem os clientes:                                                                                           # features/steps/comuns_steps.py:14
       | codigo | nome  |
       | 1      | Ana   |
       | 2      | Bruno |
       | 3      | Carla |
-    Quando eu reservo uma aula na quarta-feira às "10:00" na quadra 2 para os clientes "1,2"               # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "A reserva de aula deve ser feita para apenas um cliente!" # features/steps/comuns_steps.py:54
-    E deve existir 0 reserva na grade                                                                      # features/steps/squash_steps.py:53
+    Quando eu reservo uma aula na quarta-feira às "10:00" na quadra 2 para os clientes "1,2"                                # features/steps/squash_steps.py:35
+    Então o sistema deve recusar com a mensagem "A reserva de uma quadra para aula deve ser feita para somente um cliente!" # features/steps/comuns_steps.py:54
+    E deve existir 0 reserva na grade                                                                                       # features/steps/squash_steps.py:53
 
   @regra_validacao_reserva
   Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.1                                 # features/04_reservas_squash.feature:38
@@ -212,7 +210,7 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo no domingo às "18:00" na quadra 1 para os clientes "1,2"                 # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "O dia da reserva deve ser de segunda-feira a sábado." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "O dia da reserva deve ser de segunda-feira a sábado!" # features/steps/comuns_steps.py:54
 
   @regra_validacao_reserva
   Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.2                     # features/04_reservas_squash.feature:39
@@ -222,7 +220,7 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 4 para os clientes "1,2" # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "A quadra deve ser 1, 2 ou 3."             # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "A quadra deve ser 1, 2 ou 3!"             # features/steps/comuns_steps.py:54
 
   @regra_validacao_reserva
   Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.3                     # features/04_reservas_squash.feature:40
@@ -232,7 +230,7 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:30" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "O horário da reserva é inválido."         # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "O horário da reserva é inválido!"         # features/steps/comuns_steps.py:54
 
   @regra_validacao_reserva
   Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.4                    # features/04_reservas_squash.feature:41
@@ -242,7 +240,7 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes ""   # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "A reserva deve ter ao menos um cliente." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "A reserva deve ter ao menos um cliente!" # features/steps/comuns_steps.py:54
 
   @regra_validacao_reserva
   Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.5                        # features/04_reservas_squash.feature:42
@@ -252,17 +250,17 @@ Funcionalidade: Reserva semanal de horários de squash # features/04_reservas_sq
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "1,0"    # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "O cliente da reserva deve estar cadastrado." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "O cliente da reserva deve estar cadastrado!" # features/steps/comuns_steps.py:54
 
   @regra_validacao_reserva
-  Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.6                     # features/04_reservas_squash.feature:43
-    Dado que existem os clientes:                                                          # features/steps/comuns_steps.py:14
+  Esquema do Cenário: Dados inválidos da reserva são recusados -- @1.6                        # features/04_reservas_squash.feature:43
+    Dado que existem os clientes:                                                             # features/steps/comuns_steps.py:14
       | codigo | nome  |
       | 1      | Ana   |
       | 2      | Bruno |
       | 3      | Carla |
-    Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "2,2" # features/steps/squash_steps.py:35
-    Então o sistema deve recusar com a mensagem "O cliente já foi incluído nesta reserva." # features/steps/comuns_steps.py:54
+    Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "2,2"    # features/steps/squash_steps.py:35
+    Então o sistema deve recusar com a mensagem "Este cliente já foi incluído nesta reserva!" # features/steps/comuns_steps.py:54
 
   @regra_substituicao_confirmada
   Cenário: Substituir uma reserva ocupada exige confirmação                                                         # features/04_reservas_squash.feature:46
@@ -315,8 +313,8 @@ Funcionalidade: Geração de mensalidades de squash # features/05_mensalidades.f
     E o cliente 1 deve ter uma mensalidade de 100,00                                       # features/steps/squash_steps.py:95
     E o cliente 2 deve ter uma mensalidade de 100,00                                       # features/steps/squash_steps.py:95
 
-  @regra_aula_quatro_semanas
-  Cenário: Mensalidade de aula vale quatro aulas no mês                                 # features/05_mensalidades.feature:29
+  @regra_aulas_do_mes
+  Cenário: Mensalidade de aula vale o número de aulas do mês                            # features/05_mensalidades.feature:30
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:          # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -330,10 +328,10 @@ Funcionalidade: Geração de mensalidades de squash # features/05_mensalidades.f
     Dado que existe uma aula na terça-feira às "10:00" na quadra 2 para os clientes "3" # features/steps/squash_steps.py:25
     Quando eu gero as mensalidades em "12/03/2026"                                      # features/steps/squash_steps.py:82
     Então devem ser geradas 1 cobranças                                                 # features/steps/squash_steps.py:87
-    E o cliente 3 deve ter uma mensalidade de 200,00                                    # features/steps/squash_steps.py:95
+    E o cliente 3 deve ter uma mensalidade de 250,00                                    # features/steps/squash_steps.py:95
 
   @regra_geracao_idempotente
-  Cenário: Gerar mensalidades duas vezes no mesmo mês não duplica cobranças                # features/05_mensalidades.feature:36
+  Cenário: Gerar mensalidades duas vezes no mesmo mês não duplica cobranças                # features/05_mensalidades.feature:37
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:             # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -351,7 +349,7 @@ Funcionalidade: Geração de mensalidades de squash # features/05_mensalidades.f
     E o cliente 1 deve ter 1 lançamentos de mensalidade                                    # features/steps/squash_steps.py:102
 
   @regra_geracao_idempotente
-  Cenário: Um novo mês gera novas mensalidades                                             # features/05_mensalidades.feature:44
+  Cenário: Um novo mês gera novas mensalidades                                             # features/05_mensalidades.feature:45
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:             # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -369,7 +367,7 @@ Funcionalidade: Geração de mensalidades de squash # features/05_mensalidades.f
     E o cliente 1 deve ter 2 lançamentos de mensalidade                                    # features/steps/squash_steps.py:102
 
   @regra_valores_configurados
-  Cenário: Não é possível gerar mensalidades sem a tabela de valores                                          # features/05_mensalidades.feature:52
+  Cenário: Não é possível gerar mensalidades sem a tabela de valores                                          # features/05_mensalidades.feature:53
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                                # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -406,10 +404,10 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 2      | Bruno |
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
-    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:125
     Então devem ser geradas 2 cobranças                                                 # features/steps/squash_steps.py:87
-    E o cliente 1 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:129
-    E o cliente 2 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:129
+    E o cliente 1 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:130
+    E o cliente 2 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:130
 
   @regra_segunda_multa
   Cenário: Segunda multa a partir do terceiro vencimento                                # features/06_multas.feature:29
@@ -424,9 +422,9 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 2      | Bruno |
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
-    Quando eu gero as multas em "26/03/2026"                                            # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "26/03/2026"                                            # features/steps/squash_steps.py:125
     Então devem ser geradas 2 cobranças                                                 # features/steps/squash_steps.py:87
-    E o cliente 1 deve ter uma multa de código -3 no valor de 15,00                     # features/steps/squash_steps.py:129
+    E o cliente 1 deve ter uma multa de código -3 no valor de 15,00                     # features/steps/squash_steps.py:130
 
   @regra_periodo_multa
   Cenário: Multas fora do período de cobrança são recusadas                                                        # features/06_multas.feature:35
@@ -441,9 +439,9 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 2      | Bruno |
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2"                            # features/steps/squash_steps.py:25
-    Quando eu gero as multas em "15/03/2026"                                                                       # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "15/03/2026"                                                                       # features/steps/squash_steps.py:125
     Então o sistema deve recusar com a mensagem "As multas não foram geradas porque está fora do período correto!" # features/steps/comuns_steps.py:54
-    E o cliente 1 não deve ter multas                                                                              # features/steps/squash_steps.py:138
+    E o cliente 1 não deve ter multas                                                                              # features/steps/squash_steps.py:139
 
   @regra_multa_unica_no_mes
   Cenário: A mesma multa não é gerada duas vezes no mês                                 # features/06_multas.feature:41
@@ -459,11 +457,11 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
     Dado que as multas já foram geradas em "22/03/2026"                                 # features/steps/squash_steps.py:110
-    Quando eu gero as multas em "23/03/2026"                                            # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "23/03/2026"                                            # features/steps/squash_steps.py:125
     Então o sistema deve recusar com a mensagem "As multas deste mês já foram geradas!" # features/steps/comuns_steps.py:54
 
-  @defeito_D01 @comportamento_legado
-  Cenário: Comportamento legado D01 - a primeira multa impede a segunda no mesmo mês    # features/06_multas.feature:47
+  @defeito_D01 @defeito_corrigido
+  Cenário: D01 corrigido - a primeira multa não impede a segunda no mesmo mês           # features/06_multas.feature:47
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:          # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -476,12 +474,13 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
     Dado que as multas já foram geradas em "22/03/2026"                                 # features/steps/squash_steps.py:110
-    Quando eu gero as multas em "26/03/2026"                                            # features/steps/squash_steps.py:124
-    Então o sistema deve recusar com a mensagem "As multas deste mês já foram geradas!" # features/steps/comuns_steps.py:54
-    E o cliente 1 não deve ter multa de código -3                                       # features/steps/squash_steps.py:145
+    Quando eu gero as multas em "26/03/2026"                                            # features/steps/squash_steps.py:125
+    Então devem ser geradas 2 cobranças                                                 # features/steps/squash_steps.py:87
+    E o cliente 1 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:130
+    E o cliente 1 deve ter uma multa de código -3 no valor de 15,00                     # features/steps/squash_steps.py:130
 
   @regra_mensalidade_paga_isenta
-  Cenário: Cliente que pagou a mensalidade do mês não recebe multa                      # features/06_multas.feature:54
+  Cenário: Cliente que pagou a mensalidade do mês não recebe multa                      # features/06_multas.feature:55
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:          # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -494,13 +493,13 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
     Dado que o cliente 1 pagou a mensalidade de "15/03/2026"                            # features/steps/squash_steps.py:115
-    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:125
     Então devem ser geradas 1 cobranças                                                 # features/steps/squash_steps.py:87
-    E o cliente 1 não deve ter multas                                                   # features/steps/squash_steps.py:138
-    E o cliente 2 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:129
+    E o cliente 1 não deve ter multas                                                   # features/steps/squash_steps.py:139
+    E o cliente 2 deve ter uma multa de código -2 no valor de 10,00                     # features/steps/squash_steps.py:130
 
   @regra_aula_sem_multa
-  Cenário: Reservas de aula não recebem multa                                           # features/06_multas.feature:62
+  Cenário: Reservas de aula não recebem multa                                           # features/06_multas.feature:63
     Dado que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:          # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
@@ -513,9 +512,9 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo # features
       | 3      | Carla |
     E que existe um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" # features/steps/squash_steps.py:25
     Dado que existe uma aula na terça-feira às "10:00" na quadra 2 para os clientes "3" # features/steps/squash_steps.py:25
-    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:124
+    Quando eu gero as multas em "22/03/2026"                                            # features/steps/squash_steps.py:125
     Então devem ser geradas 2 cobranças                                                 # features/steps/squash_steps.py:87
-    E o cliente 3 não deve ter multas                                                   # features/steps/squash_steps.py:138
+    E o cliente 3 não deve ter multas                                                   # features/steps/squash_steps.py:139
 
 @consumo_produtos
 Funcionalidade: Registro de consumo de produtos por cliente # features/07_consumo_produtos.feature:3
@@ -581,7 +580,7 @@ Funcionalidade: Registro de consumo de produtos por cliente # features/07_consum
       | 1      | Ana  |
     E que existe o produto "Água mineral" de código 2 com preço 5,00                         # features/steps/comuns_steps.py:25
     Quando eu lanço 1 unidades do produto 1 para o cliente 1 em "12/03/2026"                 # features/steps/financeiro_steps.py:29
-    Então o sistema deve recusar com a mensagem "O produto consumido deve estar cadastrado." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "O produto consumido deve estar cadastrado!" # features/steps/comuns_steps.py:54
     E o cliente 1 deve ter um débito em aberto de 0,00                                       # features/steps/financeiro_steps.py:37
 
   @regra_validacao_consumo
@@ -591,7 +590,7 @@ Funcionalidade: Registro de consumo de produtos por cliente # features/07_consum
       | 1      | Ana  |
     E que existe o produto "Água mineral" de código 2 com preço 5,00                         # features/steps/comuns_steps.py:25
     Quando eu lanço 1 unidades do produto 99 para o cliente 1 em "12/03/2026"                # features/steps/financeiro_steps.py:29
-    Então o sistema deve recusar com a mensagem "O produto consumido deve estar cadastrado." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "O produto consumido deve estar cadastrado!" # features/steps/comuns_steps.py:54
     E o cliente 1 deve ter um débito em aberto de 0,00                                       # features/steps/financeiro_steps.py:37
 
 @pagamentos
@@ -748,16 +747,16 @@ Funcionalidade: Controle diário de frequentadores da sauna # features/09_sauna.
     E a conta de "Carla" na sauna deve totalizar 35,00                      # features/steps/financeiro_steps.py:161
 
   @regra_conta_fechada
-  Cenário: Conta fechada não aceita novos consumos                                           # features/09_sauna.feature:56
-    Dado que hoje é "12/03/2026"                                                             # features/steps/comuns_steps.py:42
-    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                  # features/steps/comuns_steps.py:30
+  Cenário: Conta fechada não aceita novos consumos                                             # features/09_sauna.feature:56
+    Dado que hoje é "12/03/2026"                                                               # features/steps/comuns_steps.py:42
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos:                    # features/steps/comuns_steps.py:30
       | dia | valor  |
       | 10  | 200,00 |
-    E que existe o produto "Água mineral" de código 2 com preço 5,00                         # features/steps/comuns_steps.py:25
-    Dado que "Carla" já entrou na sauna hoje                                                 # features/steps/financeiro_steps.py:124
-    E que a conta de "Carla" foi fechada com pagamento de 30,00                              # features/steps/financeiro_steps.py:136
-    Quando "Carla" consome 1 unidades do produto 2 na sauna                                  # features/steps/financeiro_steps.py:146
-    Então o sistema deve recusar com a mensagem "A conta do frequentador já foi finalizada." # features/steps/comuns_steps.py:54
+    E que existe o produto "Água mineral" de código 2 com preço 5,00                           # features/steps/comuns_steps.py:25
+    Dado que "Carla" já entrou na sauna hoje                                                   # features/steps/financeiro_steps.py:124
+    E que a conta de "Carla" foi fechada com pagamento de 30,00                                # features/steps/financeiro_steps.py:136
+    Quando "Carla" consome 1 unidades do produto 2 na sauna                                    # features/steps/financeiro_steps.py:146
+    Então o sistema deve recusar com a mensagem "A conta deste frequentador já foi encerrada!" # features/steps/comuns_steps.py:54
 
   @regra_fechamento_sauna
   Cenário: Fechamento sem valor é recusado                                               # features/09_sauna.feature:63
@@ -779,7 +778,7 @@ Funcionalidade: Controle diário de frequentadores da sauna # features/09_sauna.
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00                                          # features/steps/comuns_steps.py:25
     Quando eu registro a entrada de "Diego" na sauna em "11/03/2026"                                          # features/steps/financeiro_steps.py:141
-    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje." # features/steps/comuns_steps.py:54
+    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje!" # features/steps/comuns_steps.py:54
 
   @regra_frequentador_existente
   Cenário: Consumo para frequentador inexistente é recusado                             # features/09_sauna.feature:75

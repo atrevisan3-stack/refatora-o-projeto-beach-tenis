@@ -57,7 +57,7 @@ Funcionalidade: Controle diário de frequentadores da sauna
     Dado que "Carla" já entrou na sauna hoje
     E que a conta de "Carla" foi fechada com pagamento de 30,00
     Quando "Carla" consome 1 unidades do produto 2 na sauna
-    Então o sistema deve recusar com a mensagem "A conta do frequentador já foi finalizada."
+    Então o sistema deve recusar com a mensagem "A conta deste frequentador já foi encerrada!"
 
   @regra_fechamento_sauna
   Cenário: Fechamento sem valor é recusado
@@ -69,7 +69,7 @@ Funcionalidade: Controle diário de frequentadores da sauna
   @regra_somente_hoje
   Cenário: Só é possível alterar a sauna do dia de hoje
     Quando eu registro a entrada de "Diego" na sauna em "11/03/2026"
-    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje."
+    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje!"
 
   @regra_frequentador_existente
   Cenário: Consumo para frequentador inexistente é recusado

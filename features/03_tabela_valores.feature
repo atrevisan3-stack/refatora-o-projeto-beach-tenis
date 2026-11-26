@@ -34,8 +34,8 @@ Funcionalidade: Tabela de valores e vencimentos
       | sauna | aula  | dia1 | valor1 | dia2 | valor2 | mensagem                                              |
       | 0,00  | 50,00 | 10   | 200,00 | 20   | 220,00 | O valor da sauna deve ser maior que zero!             |
       | 30,00 | 0,00  | 10   | 200,00 | 20   | 220,00 | O valor da aula deve ser maior que zero!              |
-      | 30,00 | 50,00 | 0    | 200,00 | 20   | 220,00 | Os vencimentos devem estar entre os dias 1 e 28.      |
-      | 30,00 | 50,00 | 10   | 200,00 | 29   | 220,00 | Os vencimentos devem estar entre os dias 1 e 28.      |
-      | 30,00 | 50,00 | 10   | 200,00 | 10   | 220,00 | Os vencimentos devem ser diferentes.                  |
-      | 30,00 | 50,00 | 10   | 200,00 | 20   | vazio  | Dia e valor do vencimento devem ser informados juntos. |
-      | 30,00 | 50,00 | 10   | 200,00 | 20   | 0,00   | O valor da mensalidade deve ser maior que zero.       |
+      | 30,00 | 50,00 | 0    | 200,00 | 20   | 220,00 | O vencimento 1 e o valor mensal 1 devem ser informados juntos! |
+      | 30,00 | 50,00 | 10   | 200,00 | 29   | 220,00 | O vencimento 2 deve estar entre os dias 1 e 28!       |
+      | 30,00 | 50,00 | 10   | 200,00 | 10   | 220,00 | Os dias de vencimento devem ser diferentes!           |
+      | 30,00 | 50,00 | 10   | 200,00 | 20   | vazio  | O vencimento 2 e o valor mensal 2 devem ser informados juntos! |
+      | 30,00 | 50,00 | 10   | 200,00 | 20   | 0,00   | O valor mensal 2 deve ser maior que zero!             |

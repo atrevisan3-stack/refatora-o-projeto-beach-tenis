@@ -5,10 +5,10 @@ Funcionalidade: Cadastro de produtos
   Quero manter os produtos vendidos no bar e na sauna
   Para que os consumos sejam cobrados pelo preço correto
 
-  # A tela envia código 0 para um produto novo, como faz para clientes.
-  # Product.validate() recusa o código 0 antes de o serviço gerar o próximo código.
-  # O cenário falha até a correção na camada de domínio/serviço (itens 1 e 2).
-  @regra_codigo_automatico @defeito_encontrado
+  # Defeito encontrado pelo BDD e corrigido: a tela enviava código 0 para um
+  # produto novo e Product.validate() o recusava. Agora o produto novo vai sem
+  # código (None) e o serviço gera o próximo.
+  @regra_codigo_automatico @defeito_corrigido
   Cenário: Cadastrar um produto válido
     Quando eu cadastro o produto "Água mineral" com preço 5,00 e unidade "un"
     Então o produto "Água mineral" deve estar cadastrado com código 2 e preço 5,00

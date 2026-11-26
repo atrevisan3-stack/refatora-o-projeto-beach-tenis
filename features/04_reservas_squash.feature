@@ -25,7 +25,7 @@ Funcionalidade: Reserva semanal de horários de squash
   @regra_aula_individual
   Cenário: Aula só pode ter um cliente
     Quando eu reservo uma aula na quarta-feira às "10:00" na quadra 2 para os clientes "1,2"
-    Então o sistema deve recusar com a mensagem "A reserva de aula deve ser feita para apenas um cliente!"
+    Então o sistema deve recusar com a mensagem "A reserva de uma quadra para aula deve ser feita para somente um cliente!"
     E deve existir 0 reserva na grade
 
   @regra_validacao_reserva
@@ -35,12 +35,12 @@ Funcionalidade: Reserva semanal de horários de squash
 
     Exemplos:
       | dia              | horario | quadra | clientes | mensagem                                              |
-      | no domingo       | 18:00   | 1      | 1,2      | O dia da reserva deve ser de segunda-feira a sábado.  |
-      | na sexta-feira   | 18:00   | 4      | 1,2      | A quadra deve ser 1, 2 ou 3.                          |
-      | na sexta-feira   | 18:30   | 1      | 1,2      | O horário da reserva é inválido.                      |
-      | na sexta-feira   | 18:00   | 1      |          | A reserva deve ter ao menos um cliente.               |
-      | na sexta-feira   | 18:00   | 1      | 1,0      | O cliente da reserva deve estar cadastrado.           |
-      | na sexta-feira   | 18:00   | 1      | 2,2      | O cliente já foi incluído nesta reserva.              |
+      | no domingo       | 18:00   | 1      | 1,2      | O dia da reserva deve ser de segunda-feira a sábado!  |
+      | na sexta-feira   | 18:00   | 4      | 1,2      | A quadra deve ser 1, 2 ou 3!                          |
+      | na sexta-feira   | 18:30   | 1      | 1,2      | O horário da reserva é inválido!                      |
+      | na sexta-feira   | 18:00   | 1      |          | A reserva deve ter ao menos um cliente!               |
+      | na sexta-feira   | 18:00   | 1      | 1,0      | O cliente da reserva deve estar cadastrado!           |
+      | na sexta-feira   | 18:00   | 1      | 2,2      | Este cliente já foi incluído nesta reserva!              |
 
   @regra_substituicao_confirmada
   Cenário: Substituir uma reserva ocupada exige confirmação

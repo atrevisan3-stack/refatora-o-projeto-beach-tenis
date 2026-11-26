@@ -43,12 +43,13 @@ Funcionalidade: Geração de multas por atraso da mensalidade de jogo
     Quando eu gero as multas em "23/03/2026"
     Então o sistema deve recusar com a mensagem "As multas deste mês já foram geradas!"
 
-  @defeito_D01 @comportamento_legado
-  Cenário: Comportamento legado D01 - a primeira multa impede a segunda no mesmo mês
+  @defeito_D01 @defeito_corrigido
+  Cenário: D01 corrigido - a primeira multa não impede a segunda no mesmo mês
     Dado que as multas já foram geradas em "22/03/2026"
     Quando eu gero as multas em "26/03/2026"
-    Então o sistema deve recusar com a mensagem "As multas deste mês já foram geradas!"
-    E o cliente 1 não deve ter multa de código -3
+    Então devem ser geradas 2 cobranças
+    E o cliente 1 deve ter uma multa de código -2 no valor de 10,00
+    E o cliente 1 deve ter uma multa de código -3 no valor de 15,00
 
   @regra_mensalidade_paga_isenta
   Cenário: Cliente que pagou a mensalidade do mês não recebe multa

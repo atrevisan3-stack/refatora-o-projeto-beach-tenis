@@ -41,7 +41,7 @@ def step_debito_aberto(context, cliente, valor):
 
 @then('os consumos do cliente {cliente:d} devem ter as sequências "{sequencias}"')
 def step_sequencias(context, cliente, sequencias):
-    obtido = tuple(c.sequence for c in context.banco.consumptions.of_customer(cliente))
+    obtido = tuple(c.sequence for c in context.consumos.for_customer(cliente))
     esperado = lista_codigos(sequencias)
     assert obtido == esperado, f"Sequências esperadas {esperado}, obtidas {obtido}"
 
@@ -73,7 +73,7 @@ def step_tipo_pagamento(context, tipo):
     assert context.resultado.paid_in_full is esperado_total, (
         f"Esperado pagamento {tipo}, obtido paid_in_full={context.resultado.paid_in_full}"
     )
-    assert context.banco.payments.rows[-1][3] is esperado_total
+    assert context.banco.state.payments[-1][4] is esperado_total
 
 
 @then("o saldo do pagamento deve ser {valor:Dinheiro}")
@@ -86,9 +86,9 @@ def step_saldo(context, valor):
     "para o cliente {cliente:d}"
 )
 def step_pagamentos_registrados(context, quantidade, valor, cliente):
-    registros = [r for r in context.banco.payments.rows if r[0] == cliente]
+    registros = [r for r in context.banco.state.payments if r[0] == cliente]
     assert len(registros) == quantidade, f"Esperados {quantidade} pagamentos, obtidos {registros}"
-    assert_valor(registros[0][2], valor, "Valor pago")
+    assert_valor(registros[0][3], valor, "Valor pago")
 
 
 @then(
@@ -98,24 +98,24 @@ def step_pagamentos_registrados(context, quantidade, valor, cliente):
 def step_lancamento_ajuste(context, valor, situacao, cliente):
     pago = {"em aberto": False, "quitado": True}[situacao]
     ajustes = [
-        c for c in context.banco.consumptions.of_customer(cliente)
+        c for c in context.consumos.for_customer(cliente)
         if c.product_code == AJUSTE and c.paid is pago and c.total == valor
     ]
     assert len(ajustes) == 1, (
         f"Ajuste de {valor} {situacao} não encontrado. "
-        f"Lançamentos: {context.banco.consumptions.of_customer(cliente)}"
+        f"Lançamentos: {context.consumos.for_customer(cliente)}"
     )
 
 
 @then("não deve existir pagamento registrado")
 def step_sem_pagamento(context):
-    assert not context.banco.payments.rows, f"Pagamentos gravados: {context.banco.payments.rows}"
+    assert not context.banco.state.payments, f"Pagamentos gravados: {context.banco.state.payments}"
 
 
 # --- Sauna -------------------------------------------------------------------
 
 def _conta(context, nome):
-    contas = context.sauna.accounts(context.hoje)
+    contas = context.sauna.accounts(context.relogio.current)
     conta = next((c for c in contas if c.name.casefold() == nome.casefold()), None)
     assert conta is not None, f'Conta de "{nome}" não encontrada na sauna.'
     return conta
@@ -123,19 +123,19 @@ def _conta(context, nome):
 
 @given('que "{nome}" já entrou na sauna hoje')
 def step_entrou_sauna(context, nome):
-    context.sauna.add_attendee(nome, context.hoje)
+    context.sauna.add_attendee(nome, context.relogio.current)
 
 
 @given('que "{nome}" consumiu {quantidade:d} unidades do produto {produto:d} na sauna')
 def step_consumiu_sauna(context, nome, quantidade, produto):
     context.sauna.add_product_consumption(
-        name=nome, account_date=context.hoje, product_code=produto, quantity=quantidade
+        name=nome, account_date=context.relogio.current, product_code=produto, quantity=quantidade
     )
 
 
 @given('que a conta de "{nome}" foi fechada com pagamento de {valor:Dinheiro}')
 def step_conta_fechada(context, nome, valor):
-    context.sauna.close_account(nome, context.hoje, valor)
+    context.sauna.close_account(nome, context.relogio.current, valor)
 
 
 @when('eu registro a entrada de "{nome:Texto}" na sauna em "{data:Data}"')
@@ -148,14 +148,14 @@ def step_consome_sauna(context, nome, quantidade, produto):
     executar(
         context,
         lambda: context.sauna.add_product_consumption(
-            name=nome, account_date=context.hoje, product_code=produto, quantity=quantidade
+            name=nome, account_date=context.relogio.current, product_code=produto, quantity=quantidade
         ),
     )
 
 
 @when('eu fecho a conta de "{nome}" com pagamento de {valor:Dinheiro}')
 def step_fechar_conta(context, nome, valor):
-    executar(context, lambda: context.sauna.close_account(nome, context.hoje, valor))
+    executar(context, lambda: context.sauna.close_account(nome, context.relogio.current, valor))
 
 
 @then('a conta de "{nome}" na sauna deve totalizar {valor:Dinheiro}')

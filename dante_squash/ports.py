@@ -1,29 +1,54 @@
-"""Interfaces between application services and infrastructure adapters."""
+"""Interfaces (portas) entre os serviços de aplicação e a infraestrutura."""
 
 from __future__ import annotations
 
-from contextlib import AbstractContextManager
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
+from pathlib import Path
 from typing import Protocol, Sequence
 
-from dante_squash.domain import Consumption, Customer, PriceSchedule, Product, Reservation, SaunaAccount
+from dante_squash.domain import (
+    Consumption,
+    Customer,
+    PriceSchedule,
+    Product,
+    Reservation,
+    SaunaAccount,
+)
+
+
+class Clock(Protocol):
+    def today(self) -> date: ...
+
+    def now(self) -> datetime: ...
 
 
 class CustomerRepository(Protocol):
     def list_all(self) -> Sequence[Customer]: ...
 
+    def get(self, code: int) -> Customer | None: ...
+
     def next_code(self) -> int: ...
 
     def save(self, customer: Customer) -> None: ...
+
+    def has_dependencies(self, code: int) -> bool: ...
+
+    def delete(self, code: int) -> None: ...
 
 
 class ProductRepository(Protocol):
     def list_all(self) -> Sequence[Product]: ...
 
+    def get(self, code: int) -> Product | None: ...
+
     def next_code(self) -> int: ...
 
     def save(self, product: Product) -> None: ...
+
+    def is_used(self, code: int) -> bool: ...
+
+    def delete(self, code: int) -> None: ...
 
 
 class PriceScheduleRepository(Protocol):
@@ -37,11 +62,21 @@ class ReservationRepository(Protocol):
 
     def replace(self, reservation: Reservation) -> None: ...
 
+    def delete(self, weekday: int, time: str, court: int) -> None: ...
+
 
 class ConsumptionRepository(Protocol):
+    def for_customer(self, customer_id: int) -> Sequence[Consumption]: ...
+
     def unpaid_for_customer(self, customer_id: int) -> Sequence[Consumption]: ...
 
+    def between(self, start: date, end: date) -> Sequence[Consumption]: ...
+
+    def get(self, customer_id: int, consumption_date: date, sequence: int) -> Consumption | None: ...
+
     def insert(self, consumption: Consumption) -> None: ...
+
+    def delete(self, customer_id: int, consumption_date: date, sequence: int) -> None: ...
 
     def next_sequence(self, customer_id: int, consumption_date: date) -> int: ...
 
@@ -49,17 +84,21 @@ class ConsumptionRepository(Protocol):
 
 
 class PaymentRepository(Protocol):
-    def record(self, customer_id: int, payment_date: date, amount: Decimal, paid_in_full: bool) -> None: ...
+    def record(
+        self, customer_id: int, payment_date: date, amount: Decimal, paid_in_full: bool
+    ) -> None: ...
 
 
 class SaunaRepository(Protocol):
     def accounts_for_date(self, account_date: date) -> Sequence[SaunaAccount]: ...
 
-    def create_account(self, account: SaunaAccount, entrance_price: Decimal) -> None: ...
+    def add_consumption(self, account_name: str, consumption: Consumption) -> None: ...
 
-    def add_consumption(self, account_name: str, account_date: date, consumption: Consumption) -> None: ...
+    def remove_consumption(self, account_date: date, sequence: int) -> None: ...
 
-    def close_account(self, account_name: str, account_date: date, amount_paid: Decimal) -> None: ...
+    def close_account(
+        self, account: SaunaAccount, entrance_adjustment: Decimal
+    ) -> None: ...
 
 
 class MonthlyBillingRepository(Protocol):
@@ -73,6 +112,8 @@ class MonthlyBillingRepository(Protocol):
 
 
 class UnitOfWork(Protocol):
+    """Agrupa os repositórios de um caso de uso numa única transação."""
+
     customers: CustomerRepository
     products: ProductRepository
     prices: PriceScheduleRepository
@@ -88,4 +129,10 @@ class UnitOfWork(Protocol):
 
 
 class UnitOfWorkFactory(Protocol):
-    def __call__(self) -> AbstractContextManager[UnitOfWork]: ...
+    def __call__(self) -> UnitOfWork: ...
+
+
+class TableExporter(Protocol):
+    """Exporta as tabelas do banco para arquivos (RF16)."""
+
+    def export_all(self, directory: Path, stamp: str) -> Sequence[Path]: ...

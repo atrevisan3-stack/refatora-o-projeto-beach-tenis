@@ -14,12 +14,12 @@ from support.ajuda import faixas_da_tabela
 @given("que existem os clientes:")
 def step_clientes(context):
     for linha in context.table:
-        context.catalogo.save_customer(Customer(int(linha["codigo"]), linha["nome"]))
+        context.catalogo.save_customer(Customer(int(linha["codigo"]), linha["nome"], "", "", ""))
 
 
 @given('que já existe o cliente "{nome}" com código {codigo:d}')
 def step_cliente_existente(context, nome, codigo):
-    context.catalogo.save_customer(Customer(codigo, nome))
+    context.catalogo.save_customer(Customer(codigo, nome, "", "", ""))
 
 
 @given('que existe o produto "{descricao}" de código {codigo:d} com preço {preco:Dinheiro}')
@@ -36,12 +36,12 @@ def step_tabela_valores(context, sauna, aula):
 
 @given("que a tabela de valores não foi configurada")
 def step_sem_tabela(context):
-    context.banco.prices.schedule = None
+    context.banco.state.prices = None
 
 
 @given('que hoje é "{hoje:Data}"')
 def step_hoje(context, hoje):
-    context.hoje = hoje
+    context.relogio.current = hoje
 
 
 # --- Verificação (Então) -----------------------------------------------------

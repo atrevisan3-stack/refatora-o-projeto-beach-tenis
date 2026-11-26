@@ -1,4 +1,9 @@
-"""Ganchos do behave: cada cenário recebe um sistema novo e isolado."""
+"""Ganchos do behave: cada cenário recebe um sistema novo e isolado.
+
+Os serviços são montados pela mesma raiz de composição da aplicação
+(``ServiceFactory``), sobre o banco em memória de ``tests/support/fakes.py``,
+que implementa as portas de ``dante_squash/ports.py``.
+"""
 
 from __future__ import annotations
 
@@ -12,21 +17,26 @@ for path in (str(PROJECT_ROOT), str(FEATURES_DIR)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from dante_squash.services.catalog import CatalogService  # noqa: E402
-from dante_squash.services.consumptions import ConsumptionService  # noqa: E402
-from dante_squash.services.monthly_billing import MonthlyBillingService  # noqa: E402
-from dante_squash.services.payments import PaymentService  # noqa: E402
-from dante_squash.services.sauna import SaunaService  # noqa: E402
-from support.memoria import InMemoryUnitOfWork  # noqa: E402
+from dante_squash.composition import ServiceFactory  # noqa: E402
+from tests.support.fakes import (  # noqa: E402
+    FixedClock,
+    InMemoryDatabase,
+    InMemoryUnitOfWorkFactory,
+    RecordingExporter,
+)
 
 
 def before_scenario(context, scenario) -> None:
-    context.banco = InMemoryUnitOfWork()
-    context.hoje = date(2026, 3, 12)
+    context.banco = InMemoryDatabase()
+    context.relogio = FixedClock(date(2026, 3, 12))
     context.erro = None
     context.resultado = None
-    context.catalogo = CatalogService(context.banco)
-    context.consumos = ConsumptionService(context.banco)
-    context.pagamentos = PaymentService(context.banco)
-    context.cobranca = MonthlyBillingService(context.banco)
-    context.sauna = SaunaService(context.banco, clock=lambda: context.hoje)
+    servicos = ServiceFactory(
+        InMemoryUnitOfWorkFactory(context.banco), RecordingExporter(), context.relogio
+    ).build()
+    context.catalogo = servicos.catalog
+    context.reservas = servicos.reservations
+    context.consumos = servicos.consumptions
+    context.pagamentos = servicos.payments
+    context.cobranca = servicos.monthly_billing
+    context.sauna = servicos.sauna

@@ -17,7 +17,7 @@ def _reserva(is_game, dia, horario, quadra, clientes) -> Reservation:
 
 
 def _lancamentos(context, cliente, codigo):
-    return [c for c in context.banco.consumptions.of_customer(cliente) if c.product_code == codigo]
+    return [c for c in context.consumos.for_customer(cliente) if c.product_code == codigo]
 
 
 # --- Reservas ----------------------------------------------------------------
@@ -27,7 +27,7 @@ def _lancamentos(context, cliente, codigo):
     'para os clientes "{clientes:Texto}"'
 )
 def step_reserva_existente(context, jogo, dia, horario, quadra, clientes):
-    context.catalogo.save_reservation(
+    context.reservas.save(
         _reserva(jogo, dia, horario, quadra, clientes), replace_existing=True
     )
 
@@ -38,7 +38,7 @@ def step_reserva_existente(context, jogo, dia, horario, quadra, clientes):
 )
 def step_reservar(context, jogo, dia, horario, quadra, clientes):
     reserva = _reserva(jogo, dia, horario, quadra, clientes)
-    executar(context, lambda: context.catalogo.save_reservation(reserva, replace_existing=False))
+    executar(context, lambda: context.reservas.save(reserva, replace_existing=False))
 
 
 @when(
@@ -47,12 +47,12 @@ def step_reservar(context, jogo, dia, horario, quadra, clientes):
 )
 def step_substituir(context, jogo, dia, horario, quadra, clientes):
     reserva = _reserva(jogo, dia, horario, quadra, clientes)
-    executar(context, lambda: context.catalogo.save_reservation(reserva, replace_existing=True))
+    executar(context, lambda: context.reservas.save(reserva, replace_existing=True))
 
 
 @then("deve existir {quantidade:d} reserva na grade")
 def step_quantidade_reservas(context, quantidade):
-    obtido = len(context.catalogo.reservations())
+    obtido = len(context.reservas.reservations())
     assert obtido == quantidade, f"Esperadas {quantidade} reservas, obtidas {obtido}"
 
 
@@ -63,7 +63,7 @@ def step_quantidade_reservas(context, quantidade):
 def step_reserva_clientes(context, dia, horario, quadra, clientes):
     reserva = next(
         r
-        for r in context.catalogo.reservations()
+        for r in context.reservas.reservations()
         if (r.weekday, r.time, r.court) == (dia, horario, quadra)
     )
     esperado = lista_codigos(clientes)
@@ -87,8 +87,8 @@ def step_gerar_mensalidades(context, data):
 @then("devem ser geradas {quantidade:d} cobranças")
 def step_quantidade_cobrancas(context, quantidade):
     assert context.erro is None, f"A geração foi recusada: {context.erro}"
-    assert context.resultado == quantidade, (
-        f"Esperadas {quantidade} cobranças, geradas {context.resultado}"
+    assert len(context.resultado) == quantidade, (
+        f"Esperadas {quantidade} cobranças, geradas {len(context.resultado)}"
     )
 
 
@@ -114,10 +114,11 @@ def step_multas_geradas(context, data):
 
 @given('que o cliente {cliente:d} pagou a mensalidade de "{data:Data}"')
 def step_mensalidade_paga(context, cliente, data):
-    consumos = context.banco.consumptions
-    consumos.insert(
-        Consumption(cliente, data, consumos.next_sequence(cliente, data), MENSALIDADE, 1,
-                    context.catalogo.prices().due_tiers[0].monthly_price, paid=True)
+    consumos = context.banco.state.consumptions
+    sequencia = 1 + max((k[2] for k in consumos if k[:2] == (cliente, data)), default=0)
+    consumos[(cliente, data, sequencia)] = Consumption(
+        cliente, data, sequencia, MENSALIDADE, 1,
+        context.catalogo.prices().due_tiers[0].monthly_price, paid=True,
     )
 
 
@@ -137,7 +138,7 @@ def step_valor_multa(context, cliente, codigo, valor):
 
 @then("o cliente {cliente:d} não deve ter multas")
 def step_sem_multas(context, cliente):
-    multas = [c for c in context.banco.consumptions.of_customer(cliente)
+    multas = [c for c in context.consumos.for_customer(cliente)
               if c.product_code in CODIGOS_MULTA]
     assert not multas, f"O cliente {cliente} recebeu multas: {multas}"
 

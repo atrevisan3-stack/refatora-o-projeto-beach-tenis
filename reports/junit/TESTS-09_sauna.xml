@@ -1,23 +1,23 @@
-<testsuite name="09_sauna.Controle diário de frequentadores da sauna" tests="10" errors="0" failures="0" skipped="0" time="0.01412" timestamp="2026-11-25T23:53:50.201780" hostname="ARAGORN"><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Registrar a entrada lança o valor da sauna na conta" status="passed" time="0.002516"><system-out>
+<testsuite name="09_sauna.Controle diário de frequentadores da sauna" tests="10" errors="0" failures="0" skipped="0" time="0.008884" timestamp="2026-11-26T14:10:16.928606" hostname="ARAGORN"><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Registrar a entrada lança o valor da sauna na conta" status="passed" time="0.000922"><system-out>
 <![CDATA[
 @scenario.begin
 
   @regra_entrada_sauna
   Cenário: Registrar a entrada lança o valor da sauna na conta
     Dado que hoje é "12/03/2026" ... passed in 0.000s
-    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.001s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
       | dia | valor  |
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
-    Quando eu registro a entrada de "Carla" na sauna em "12/03/2026" ... passed in 0.001s
+    Quando eu registro a entrada de "Carla" na sauna em "12/03/2026" ... passed in 0.000s
     Então a operação deve ser aceita ... passed in 0.000s
     E a conta de "Carla" na sauna deve totalizar 30,00 ... passed in 0.000s
-    E a conta de "Carla" na sauna deve estar aberta ... passed in 0.001s
+    E a conta de "Carla" na sauna deve estar aberta ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador deve ser único no dia, sem diferenciar maiúsculas" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador deve ser único no dia, sem diferenciar maiúsculas" status="passed" time="0.000769"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -35,7 +35,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador é obrigatório" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Nome do frequentador é obrigatório" status="passed" time="0.000546"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -52,7 +52,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo de produtos soma na conta do frequentador" status="passed" time="0.001045"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo de produtos soma na conta do frequentador" status="passed" time="0.000789"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -63,34 +63,34 @@
       | dia | valor  |
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
-    Dado que "Carla" já entrou na sauna hoje ... passed in 0.001s
+    Dado que "Carla" já entrou na sauna hoje ... passed in 0.000s
     Quando "Carla" consome 2 unidades do produto 2 na sauna ... passed in 0.000s
     Então a conta de "Carla" na sauna deve totalizar 40,00 ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechar a conta quita todos os lançamentos" status="passed" time="0.003298"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechar a conta quita todos os lançamentos" status="passed" time="0.001292"><system-out>
 <![CDATA[
 @scenario.begin
 
   @regra_fechamento_sauna
   Cenário: Fechar a conta quita todos os lançamentos
     Dado que hoje é "12/03/2026" ... passed in 0.000s
-    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.001s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
       | dia | valor  |
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
     Dado que "Carla" já entrou na sauna hoje ... passed in 0.000s
     E que "Carla" consumiu 2 unidades do produto 2 na sauna ... passed in 0.000s
-    Quando eu fecho a conta de "Carla" com pagamento de 40,00 ... passed in 0.001s
+    Quando eu fecho a conta de "Carla" com pagamento de 40,00 ... passed in 0.000s
     Então a conta de "Carla" na sauna deve estar fechada ... passed in 0.000s
-    E a conta de "Carla" na sauna deve totalizar 40,00 ... passed in 0.001s
+    E a conta de "Carla" na sauna deve totalizar 40,00 ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Diferença no fechamento é ajustada na entrada" status="passed" time="0.00058"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Diferença no fechamento é ajustada na entrada" status="passed" time="0.001808"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -104,13 +104,13 @@
     Dado que "Carla" já entrou na sauna hoje ... passed in 0.000s
     E que "Carla" consumiu 2 unidades do produto 2 na sauna ... passed in 0.000s
     Quando eu fecho a conta de "Carla" com pagamento de 35,00 ... passed in 0.000s
-    Então a conta de "Carla" na sauna deve estar fechada ... passed in 0.001s
+    Então a conta de "Carla" na sauna deve estar fechada ... passed in 0.000s
     E a conta de "Carla" na sauna deve totalizar 35,00 ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Conta fechada não aceita novos consumos" status="passed" time="0.001577"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Conta fechada não aceita novos consumos" status="passed" time="0.000895"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -120,16 +120,16 @@
     E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
       | dia | valor  |
       | 10  | 200,00 |
-    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.001s
-    Dado que "Carla" já entrou na sauna hoje ... passed in 0.001s
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
+    Dado que "Carla" já entrou na sauna hoje ... passed in 0.000s
     E que a conta de "Carla" foi fechada com pagamento de 30,00 ... passed in 0.000s
     Quando "Carla" consome 1 unidades do produto 2 na sauna ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "A conta do frequentador já foi finalizada." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "A conta deste frequentador já foi encerrada!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechamento sem valor é recusado" status="passed" time="0.001038"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Fechamento sem valor é recusado" status="passed" time="0.000778"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -139,7 +139,7 @@
     E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
       | dia | valor  |
       | 10  | 200,00 |
-    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.001s
+    E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
     Dado que "Carla" já entrou na sauna hoje ... passed in 0.000s
     Quando eu fecho a conta de "Carla" com pagamento de 0,00 ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "O valor a ser pago deve ser informado!" ... passed in 0.000s
@@ -148,24 +148,24 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Só é possível alterar a sauna do dia de hoje" status="passed" time="0.003515"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Só é possível alterar a sauna do dia de hoje" status="passed" time="0.000493"><system-out>
 <![CDATA[
 @scenario.begin
 
   @regra_somente_hoje
   Cenário: Só é possível alterar a sauna do dia de hoje
-    Dado que hoje é "12/03/2026" ... passed in 0.001s
-    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.001s
+    Dado que hoje é "12/03/2026" ... passed in 0.000s
+    E que a tabela de valores tem sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
       | dia | valor  |
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
-    Quando eu registro a entrada de "Diego" na sauna em "11/03/2026" ... passed in 0.001s
-    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje." ... passed in 0.000s
+    Quando eu registro a entrada de "Diego" na sauna em "11/03/2026" ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "Só é possível alterar os dados da sauna para o dia de hoje!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo para frequentador inexistente é recusado" status="passed" time="0.000552"><system-out>
+</system-out></testcase><testcase classname="09_sauna.Controle diário de frequentadores da sauna" name="Consumo para frequentador inexistente é recusado" status="passed" time="0.000593"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -176,7 +176,7 @@
       | dia | valor  |
       | 10  | 200,00 |
     E que existe o produto "Água mineral" de código 2 com preço 5,00 ... passed in 0.000s
-    Quando "Diego" consome 1 unidades do produto 2 na sauna ... passed in 0.001s
+    Quando "Diego" consome 1 unidades do produto 2 na sauna ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "Frequentador da sauna não encontrado." ... passed in 0.000s
 
 @scenario.end

@@ -1,4 +1,4 @@
-<testsuite name="04_reservas_squash.Reserva semanal de horários de squash" tests="11" errors="0" failures="0" skipped="0" time="0.001048" timestamp="2026-11-25T23:53:49.985846" hostname="ARAGORN"><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Reservar um jogo para vários clientes" status="passed" time="0.001048"><system-out>
+<testsuite name="04_reservas_squash.Reserva semanal de horários de squash" tests="11" errors="0" failures="0" skipped="0" time="0.005785" timestamp="2026-11-26T14:10:16.841339" hostname="ARAGORN"><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Reservar um jogo para vários clientes" status="passed" time="0.000583"><system-out>
 <![CDATA[
 @scenario.begin
   Cenário: Reservar um jogo para vários clientes
@@ -9,12 +9,12 @@
       | 3      | Carla |
     Quando eu reservo um jogo na segunda-feira às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
     Então a operação deve ser aceita ... passed in 0.000s
-    E deve existir 1 reserva na grade ... passed in 0.001s
+    E deve existir 1 reserva na grade ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Reservar uma aula para um único cliente" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Reservar uma aula para um único cliente" status="passed" time="0.000543"><system-out>
 <![CDATA[
 @scenario.begin
   Cenário: Reservar uma aula para um único cliente
@@ -30,7 +30,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Aula só pode ter um cliente" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Aula só pode ter um cliente" status="passed" time="0.000441"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -42,13 +42,13 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo uma aula na quarta-feira às "10:00" na quadra 2 para os clientes "1,2" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "A reserva de aula deve ser feita para apenas um cliente!" ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "A reserva de uma quadra para aula deve ser feita para somente um cliente!" ... passed in 0.000s
     E deve existir 0 reserva na grade ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.1 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.1 " status="passed" time="0.000366"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -60,12 +60,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo no domingo às "18:00" na quadra 1 para os clientes "1,2" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "O dia da reserva deve ser de segunda-feira a sábado." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "O dia da reserva deve ser de segunda-feira a sábado!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.2 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.2 " status="passed" time="0.000341"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -77,12 +77,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 4 para os clientes "1,2" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "A quadra deve ser 1, 2 ou 3." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "A quadra deve ser 1, 2 ou 3!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.3 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.3 " status="passed" time="0.000451"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -94,12 +94,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:30" na quadra 1 para os clientes "1,2" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "O horário da reserva é inválido." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "O horário da reserva é inválido!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.4 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.4 " status="passed" time="0.00054"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -111,12 +111,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "A reserva deve ter ao menos um cliente." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "A reserva deve ter ao menos um cliente!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.5 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.5 " status="passed" time="0.000583"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -128,12 +128,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "1,0" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "O cliente da reserva deve estar cadastrado." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "O cliente da reserva deve estar cadastrado!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.6 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Dados inválidos da reserva são recusados -- @1.6 " status="passed" time="0.000397"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -145,12 +145,12 @@
       | 2      | Bruno |
       | 3      | Carla |
     Quando eu reservo um jogo na sexta-feira às "18:00" na quadra 1 para os clientes "2,2" ... passed in 0.000s
-    Então o sistema deve recusar com a mensagem "O cliente já foi incluído nesta reserva." ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "Este cliente já foi incluído nesta reserva!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Substituir uma reserva ocupada exige confirmação" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Substituir uma reserva ocupada exige confirmação" status="passed" time="0.000767"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -169,7 +169,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Substituir uma reserva ocupada com confirmação" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="04_reservas_squash.Reserva semanal de horários de squash" name="Substituir uma reserva ocupada com confirmação" status="passed" time="0.000771"><system-out>
 <![CDATA[
 @scenario.begin
 

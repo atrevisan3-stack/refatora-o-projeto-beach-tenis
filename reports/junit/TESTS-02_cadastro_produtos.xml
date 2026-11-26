@@ -1,33 +1,28 @@
-<testsuite name="02_cadastro_produtos.Cadastro de produtos" tests="7" errors="0" failures="1" skipped="0" time="0.004565" timestamp="2026-11-25T23:53:49.958085" hostname="ARAGORN"><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Cadastrar um produto válido" status="failed" time="0.002588"><failure type="AssertionError" message="O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da aplicação!">
-<![CDATA[
-Failing step: Então o produto "Água mineral" deve estar cadastrado com código 2 e preço 5,00 ... failed in 0.002s
-Location: features/02_cadastro_produtos.feature:14
-ASSERT FAILED: O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da aplicação!]]>
-</failure><system-out>
+<testsuite name="02_cadastro_produtos.Cadastro de produtos" tests="7" errors="0" failures="0" skipped="0" time="0.001321" timestamp="2026-11-26T14:10:16.814737" hostname="ARAGORN"><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Cadastrar um produto válido" status="passed" time="0.000306"><system-out>
 <![CDATA[
 @scenario.begin
 
-  @regra_codigo_automatico @defeito_encontrado
+  @regra_codigo_automatico @defeito_corrigido
   Cenário: Cadastrar um produto válido
-    Quando eu cadastro o produto "Água mineral" com preço 5,00 e unidade "un" ... passed in 0.001s
-    Então o produto "Água mineral" deve estar cadastrado com código 2 e preço 5,00 ... failed in 0.002s
+    Quando eu cadastro o produto "Água mineral" com preço 5,00 e unidade "un" ... passed in 0.000s
+    Então o produto "Água mineral" deve estar cadastrado com código 2 e preço 5,00 ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.1 " status="passed" time="0.000984"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.1 " status="passed" time="0.00017"><system-out>
 <![CDATA[
 @scenario.begin
 
   @regra_validacao_produto
   Esquema do Cenário: Dados inválidos do produto são recusados -- @1.1 
-    Quando eu cadastro o produto "" com preço 5,00 e unidade "un" ... passed in 0.001s
+    Quando eu cadastro o produto "" com preço 5,00 e unidade "un" ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "A descrição do produto deve ser informada!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.2 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.2 " status="passed" time="0.000167"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -39,7 +34,7 @@ ASSERT FAILED: O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.3 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.3 " status="passed" time="0.000158"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -51,7 +46,7 @@ ASSERT FAILED: O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.4 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Dados inválidos do produto são recusados -- @1.4 " status="passed" time="0.000195"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -63,19 +58,19 @@ ASSERT FAILED: O cadastro foi recusado: Os códigos 0 e 1 são de uso interno da
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Códigos 0 e 1 são reservados para uso interno -- @1.1 " status="passed" time="0.000993"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Códigos 0 e 1 são reservados para uso interno -- @1.1 " status="passed" time="0.000157"><system-out>
 <![CDATA[
 @scenario.begin
 
   @regra_codigos_internos
   Esquema do Cenário: Códigos 0 e 1 são reservados para uso interno -- @1.1 
-    Quando eu cadastro o produto de código 0 "Produto qualquer" com preço 3,00 e unidade "un" ... passed in 0.001s
+    Quando eu cadastro o produto de código 0 "Produto qualquer" com preço 3,00 e unidade "un" ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "Os códigos 0 e 1 são de uso interno da aplicação!" ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Códigos 0 e 1 são reservados para uso interno -- @1.2 " status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="02_cadastro_produtos.Cadastro de produtos" name="Códigos 0 e 1 são reservados para uso interno -- @1.2 " status="passed" time="0.000167"><system-out>
 <![CDATA[
 @scenario.begin
 

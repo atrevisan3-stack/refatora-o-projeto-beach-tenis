@@ -25,12 +25,13 @@ Funcionalidade: Geração de mensalidades de squash
     E o cliente 1 deve ter uma mensalidade de 100,00
     E o cliente 2 deve ter uma mensalidade de 100,00
 
-  @regra_aula_quatro_semanas
-  Cenário: Mensalidade de aula vale quatro aulas no mês
+  # Março/2026 tem 5 terças-feiras: 5 aulas × 50,00 (RN23).
+  @regra_aulas_do_mes
+  Cenário: Mensalidade de aula vale o número de aulas do mês
     Dado que existe uma aula na terça-feira às "10:00" na quadra 2 para os clientes "3"
     Quando eu gero as mensalidades em "12/03/2026"
     Então devem ser geradas 1 cobranças
-    E o cliente 3 deve ter uma mensalidade de 200,00
+    E o cliente 3 deve ter uma mensalidade de 250,00
 
   @regra_geracao_idempotente
   Cenário: Gerar mensalidades duas vezes no mesmo mês não duplica cobranças

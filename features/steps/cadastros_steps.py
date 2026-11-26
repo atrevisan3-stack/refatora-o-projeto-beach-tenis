@@ -12,13 +12,13 @@ from support.ajuda import assert_valor, executar, faixas_da_tabela
 
 @when('eu cadastro o cliente "{nome:Texto}" com CPF "{cpf:Texto}" e telefone "{telefone:Texto}"')
 def step_cadastrar_cliente(context, nome, cpf, telefone):
-    # Código 0 = cliente novo, exatamente como a tela de cadastro envia.
-    executar(context, lambda: context.catalogo.save_customer(Customer(0, nome, cpf, "", telefone)))
+    # Código None = cliente novo, exatamente como a tela de cadastro envia.
+    executar(context, lambda: context.catalogo.save_customer(Customer(None, nome, cpf, "", telefone)))
 
 
 @when('eu cadastro um cliente com nome de {tamanho:d} caracteres e CPF "{cpf:Texto}"')
 def step_cadastrar_cliente_tamanho(context, tamanho, cpf):
-    executar(context, lambda: context.catalogo.save_customer(Customer(0, "A" * tamanho, cpf)))
+    executar(context, lambda: context.catalogo.save_customer(Customer(None, "A" * tamanho, cpf, "", "")))
 
 
 @when('eu altero o nome do cliente de código {codigo:d} para "{nome}"')
@@ -51,8 +51,8 @@ def step_quantidade_clientes(context, quantidade):
     'eu cadastro o produto "{descricao:Texto}" com preço {preco:Dinheiro} e unidade "{unidade:Texto}"'
 )
 def step_cadastrar_produto(context, descricao, preco, unidade):
-    # Código 0 = produto novo, exatamente como a tela de cadastro envia.
-    executar(context, lambda: context.catalogo.save_product(Product(0, descricao, preco, unidade)))
+    # Código None = produto novo, exatamente como a tela de cadastro envia.
+    executar(context, lambda: context.catalogo.save_product(Product(None, descricao, preco, unidade)))
 
 
 @when(

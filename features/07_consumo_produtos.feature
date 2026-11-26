@@ -33,5 +33,5 @@ Funcionalidade: Registro de consumo de produtos por cliente
       | 0       | 2       | 1          | O cliente deve ser informado!              |
       | 9       | 2       | 1          | Código de cliente não cadastrado!          |
       | 1       | 2       | 0          | A quantidade do Produto deve ser informada! |
-      | 1       | 1       | 1          | O produto consumido deve estar cadastrado. |
-      | 1       | 99      | 1          | O produto consumido deve estar cadastrado. |
+      | 1       | 1       | 1          | O produto consumido deve estar cadastrado! |
+      | 1       | 99      | 1          | O produto consumido deve estar cadastrado! |

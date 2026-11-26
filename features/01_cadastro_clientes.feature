@@ -33,7 +33,7 @@ Funcionalidade: Cadastro de clientes
     Exemplos:
       | tamanho_nome | cpf          | mensagem                                           |
       | 51           |              | O nome do cliente deve ter no máximo 50 caracteres! |
-      | 10           | 123456789012 | Os dados do cliente excedem o tamanho permitido.    |
+      | 10           | 123456789012 | O CPF deve ter no máximo 11 caracteres!             |
 
   @regra_tamanho_campos
   Cenário: Nome com exatamente 50 caracteres é aceito

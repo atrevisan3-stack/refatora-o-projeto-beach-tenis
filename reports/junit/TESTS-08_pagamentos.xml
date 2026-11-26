@@ -1,4 +1,4 @@
-<testsuite name="08_pagamentos.Pagamento de débitos do cliente" tests="6" errors="0" failures="0" skipped="0" time="0.003891" timestamp="2026-11-25T23:53:50.163231" hostname="ARAGORN"><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Consultar o total em aberto" status="passed" time="0.0"><system-out>
+<testsuite name="08_pagamentos.Pagamento de débitos do cliente" tests="6" errors="0" failures="0" skipped="0" time="0.006391" timestamp="2026-11-26T14:10:16.906601" hostname="ARAGORN"><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Consultar o total em aberto" status="passed" time="0.000721"><system-out>
 <![CDATA[
 @scenario.begin
   Cenário: Consultar o total em aberto
@@ -12,7 +12,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento total quita todos os consumos" status="passed" time="0.001061"><system-out>
+</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento total quita todos os consumos" status="passed" time="0.001049"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -22,7 +22,7 @@
       | codigo | nome |
       | 1      | Ana  |
     E que existe o produto "Raquete alugada" de código 2 com preço 50,00 ... passed in 0.000s
-    E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.001s
+    E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.000s
     Quando o cliente 1 paga 100,00 com desconto de 0,00 em "20/03/2026" ... passed in 0.000s
     Então o pagamento deve ser registrado como total ... passed in 0.000s
     E o total devido pelo cliente 1 deve ser 0,00 ... passed in 0.000s
@@ -31,7 +31,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento parcial quita os consumos e lança o saldo restante" status="passed" time="0.0"><system-out>
+</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento parcial quita os consumos e lança o saldo restante" status="passed" time="0.001091"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -51,7 +51,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Desconto completa o pagamento e é lançado como crédito quitado" status="passed" time="0.001404"><system-out>
+</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Desconto completa o pagamento e é lançado como crédito quitado" status="passed" time="0.001136"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -61,7 +61,7 @@
       | codigo | nome |
       | 1      | Ana  |
     E que existe o produto "Raquete alugada" de código 2 com preço 50,00 ... passed in 0.000s
-    E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.001s
+    E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.000s
     Quando o cliente 1 paga 90,00 com desconto de 10,00 em "20/03/2026" ... passed in 0.000s
     Então o pagamento deve ser registrado como total ... passed in 0.000s
     E o total devido pelo cliente 1 deve ser 0,00 ... passed in 0.000s
@@ -70,7 +70,7 @@
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento sem valor é recusado e nada é alterado" status="passed" time="0.0004"><system-out>
+</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento sem valor é recusado e nada é alterado" status="passed" time="0.001742"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -83,13 +83,13 @@
     E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.000s
     Quando o cliente 1 paga 0,00 com desconto de 0,00 em "20/03/2026" ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "O valor a ser pago deve ser informado!" ... passed in 0.000s
-    E o total devido pelo cliente 1 deve ser 100,00 ... passed in 0.000s
+    E o total devido pelo cliente 1 deve ser 100,00 ... passed in 0.001s
     E não deve existir pagamento registrado ... passed in 0.000s
 
 @scenario.end
 --------------------------------------------------------------------------------
 ]]>
-</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento exige um cliente informado" status="passed" time="0.001026"><system-out>
+</system-out></testcase><testcase classname="08_pagamentos.Pagamento de débitos do cliente" name="Pagamento exige um cliente informado" status="passed" time="0.000654"><system-out>
 <![CDATA[
 @scenario.begin
 
@@ -98,7 +98,7 @@
     Dado que existem os clientes: ... passed in 0.000s
       | codigo | nome |
       | 1      | Ana  |
-    E que existe o produto "Raquete alugada" de código 2 com preço 50,00 ... passed in 0.001s
+    E que existe o produto "Raquete alugada" de código 2 com preço 50,00 ... passed in 0.000s
     E que o cliente 1 consumiu 2 unidades do produto 2 em "01/03/2026" ... passed in 0.000s
     Quando o cliente 0 paga 50,00 com desconto de 0,00 em "20/03/2026" ... passed in 0.000s
     Então o sistema deve recusar com a mensagem "O cliente deve ser informado!" ... passed in 0.000s
