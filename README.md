@@ -190,11 +190,109 @@ de dependência entre camadas. Testes de integração PostgreSQL continuam
 necessários para validar o DDL e as consultas contra uma instância real do
 MariaDB e do PostgreSQL.
 
+## Cenários BDD (item 3)
+
+Os testes de aceitação foram escritos em BDD (Behavior-Driven Development).
+Os cenários estão em Gherkin português (`Dado`/`Quando`/`Então`) e são
+executados com [behave](https://behave.readthedocs.io/). Eles passam pela camada
+de serviços real da aplicação, a mesma usada pela interface Tkinter. O banco é
+substituído por uma unidade de trabalho em memória que implementa as portas de
+`dante_squash/ports.py`. Por isso os cenários não precisam de MariaDB nem de
+PostgreSQL e rodam em menos de um segundo.
+
+### Estrutura
+
+| Caminho | Conteúdo |
+|---|---|
+| `behave.ini` | configuração do behave (pasta `features`, idioma `pt`) |
+| `requirements-bdd.txt` | dependências para rodar o BDD (`requirements.txt` + behave) |
+| `features/*.feature` | 9 funcionalidades e 68 cenários |
+| `features/steps/` | implementação dos passos: cadastros, squash, financeiro e comuns |
+| `features/support/` | banco em memória, tipos de parâmetro (dinheiro, data, dia da semana) e utilitários |
+| `features/environment.py` | cria um banco vazio e os serviços antes de cada cenário |
+| `reports/` | relatório texto e JUnit XML da última execução |
+| `docs/BDD.md` | metodologia, ligação cenário × requisito e análise dos resultados |
+
+### Funcionalidades cobertas
+
+| Funcionalidade | Cenários |
+|---|---|
+| 01 Cadastro de clientes | 6 |
+| 02 Cadastro de produtos | 7 |
+| 03 Tabela de valores | 9 |
+| 04 Reservas de squash | 11 |
+| 05 Mensalidades | 5 |
+| 06 Multas | 7 |
+| 07 Consumo de produtos | 7 |
+| 08 Pagamentos | 6 |
+| 09 Sauna | 10 |
+| **Total** | **68** |
+
+Cada funcionalidade tem uma tag de requisito (por exemplo `@multas`) e cada
+regra de negócio tem uma tag `@regra_...`. Comportamentos legados preservados
+de propósito usam `@defeito_D0x`.
+
+### Como executar
+
+Na pasta raiz do projeto, no PowerShell:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-bdd.txt
+.\.venv\Scripts\python.exe -m behave
+```
+
+Para rodar só um requisito ou uma regra:
+
+```powershell
+.\.venv\Scripts\python.exe -m behave --tags=@multas
+.\.venv\Scripts\python.exe -m behave --tags=@regra_pagamento_parcial
+```
+
+Para gerar novamente os relatórios da pasta `reports/`:
+
+```powershell
+$env:PYTHONIOENCODING = "utf-8"
+.\.venv\Scripts\python.exe -m behave --no-color -f pretty -o reports/bdd_resultado.txt --junit --junit-directory reports/junit
+```
+
+### Resultados
+
+Execução em 26/11/2026, com behave 1.3.3:
+
+| | Passaram | Falharam |
+|---|---|---|
+| Funcionalidades | 8 | 1 |
+| Cenários | 67 | 1 |
+| Passos | 317 | 1 |
+
+O único cenário que falha, **"Cadastrar um produto válido"**
+(`features/02_cadastro_produtos.feature:12`, tag `@defeito_encontrado`),
+mostra um defeito real da versão Python que o BDD encontrou. A tela de produtos
+envia o código 0 para um produto novo, e `Product.validate()` recusa esse código
+("Os códigos 0 e 1 são de uso interno da aplicação!") antes de
+`CatalogService.save_product` gerar o próximo código. Na prática, não é possível
+cadastrar um produto novo pela interface. Os testes unitários não pegaram o
+problema porque não exercitam esse fluxo. O cenário fica verde assim que o
+defeito for corrigido, sem alterar o BDD.
+
+Sem esse cenário, todas as funcionalidades passam:
+
+```powershell
+.\.venv\Scripts\python.exe -m behave --tags="not @defeito_encontrado"
+# 9 features passed, 0 failed — 67 scenarios passed, 1 skipped
+```
+
+O cenário `@defeito_D01` confirma que o comportamento legado D01 (a primeira
+multa impede a segunda no mesmo mês) foi preservado. Os detalhes estão em
+`docs/BDD.md`.
+
 ## Arquivos para versionar
 
 Para executar a versão Python, versione `dante_squash/`, `requirements.txt`,
-`README.md` e `.gitignore`. Inclua também `tests/` para manter os testes e
-`requirements-build.txt` se o grupo for gerar executáveis. `src/` contém o
+`README.md` e `.gitignore`. Inclua também `tests/` para manter os testes,
+`features/`, `behave.ini`, `requirements-bdd.txt`, `docs/` e `reports/` para os
+cenários BDD, e `requirements-build.txt` se o grupo for gerar executáveis. `src/` contém o
 programa Java legado e não é necessário para iniciar a aplicação Python; pode
 ser mantido no repositório se o grupo quiser preservar a implementação antiga.
 Não versione `.venv/`, `build/`, `dist/`, arquivos `.spec` gerados localmente,

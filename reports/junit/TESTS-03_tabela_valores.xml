@@ -1,0 +1,141 @@
+<testsuite name="03_tabela_valores.Tabela de valores e vencimentos" tests="9" errors="0" failures="0" skipped="0" time="0.003687" timestamp="2026-11-25T23:53:49.973506" hostname="ARAGORN"><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Salvar uma tabela de valores com três faixas de vencimento" status="passed" time="0.001108"><system-out>
+<![CDATA[
+@scenario.begin
+  Cenário: Salvar uma tabela de valores com três faixas de vencimento
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.001s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+      | 25  | 250,00 |
+    Então a operação deve ser aceita ... passed in 0.000s
+    E a tabela de valores deve ter 3 faixas de vencimento ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Apenas a primeira faixa de vencimento é obrigatória" status="passed" time="0.001004"><system-out>
+<![CDATA[
+@scenario.begin
+  Cenário: Apenas a primeira faixa de vencimento é obrigatória
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+    Então a operação deve ser aceita ... passed in 0.000s
+    E a tabela de valores deve ter 1 faixas de vencimento ... passed in 0.001s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.1 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.1 
+    Quando eu salvo a tabela de valores com sauna 0,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+    Então o sistema deve recusar com a mensagem "O valor da sauna deve ser maior que zero!" ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.2 " status="passed" time="0.000995"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.2 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 0,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 220,00 |
+    Então o sistema deve recusar com a mensagem "O valor da aula deve ser maior que zero!" ... passed in 0.001s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.3 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.3 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 0   | 200,00 |
+      | 20  | 220,00 |
+    Então o sistema deve recusar com a mensagem "Os vencimentos devem estar entre os dias 1 e 28." ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.4 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.4 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 29  | 220,00 |
+    Então o sistema deve recusar com a mensagem "Os vencimentos devem estar entre os dias 1 e 28." ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.5 " status="passed" time="0.000579"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.5 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 10  | 220,00 |
+    Então o sistema deve recusar com a mensagem "Os vencimentos devem ser diferentes." ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.001s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.6 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.6 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | vazio  |
+    Então o sistema deve recusar com a mensagem "Dia e valor do vencimento devem ser informados juntos." ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="03_tabela_valores.Tabela de valores e vencimentos" name="Valores inválidos são recusados e nada é gravado -- @1.7 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_validacao_valores
+  Esquema do Cenário: Valores inválidos são recusados e nada é gravado -- @1.7 
+    Quando eu salvo a tabela de valores com sauna 30,00, aula 50,00 e os vencimentos: ... passed in 0.000s
+      | dia | valor  |
+      | 10  | 200,00 |
+      | 20  | 0,00   |
+    Então o sistema deve recusar com a mensagem "O valor da mensalidade deve ser maior que zero." ... passed in 0.000s
+    E nenhuma tabela de valores deve estar gravada ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase></testsuite>

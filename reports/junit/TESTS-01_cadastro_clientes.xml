@@ -1,0 +1,79 @@
+<testsuite name="01_cadastro_clientes.Cadastro de clientes" tests="6" errors="0" failures="0" skipped="0" time="0.002871" timestamp="2026-11-25T23:53:49.896278" hostname="ARAGORN"><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Cadastrar um cliente novo gera o próximo código disponível" status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_codigo_automatico
+  Cenário: Cadastrar um cliente novo gera o próximo código disponível
+    Dado que já existe o cliente "Ana Souza" com código 1 ... passed in 0.000s
+    Quando eu cadastro o cliente "Bruno Lima" com CPF "12345678901" e telefone "54999990000" ... passed in 0.000s
+    Então o cliente "Bruno Lima" deve estar cadastrado com código 2 ... passed in 0.000s
+    E devem existir 2 clientes cadastrados ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Editar um cliente existente mantém o código" status="passed" time="0.000992"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_edicao
+  Cenário: Editar um cliente existente mantém o código
+    Dado que já existe o cliente "Ana Souza" com código 1 ... passed in 0.000s
+    Quando eu altero o nome do cliente de código 1 para "Ana Souza Pereira" ... passed in 0.000s
+    Então o cliente "Ana Souza Pereira" deve estar cadastrado com código 1 ... passed in 0.001s
+    E devem existir 1 clientes cadastrados ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome do cliente é obrigatório" status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_nome_obrigatorio
+  Cenário: Nome do cliente é obrigatório
+    Quando eu cadastro o cliente "   " com CPF "" e telefone "" ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "O nome do cliente deve ser informado!" ... passed in 0.000s
+    E devem existir 0 clientes cadastrados ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.1 " status="passed" time="0.00087"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_tamanho_campos
+  Esquema do Cenário: Campos do cliente respeitam o tamanho máximo -- @1.1 
+    Quando eu cadastro um cliente com nome de 51 caracteres e CPF "" ... passed in 0.001s
+    Então o sistema deve recusar com a mensagem "O nome do cliente deve ter no máximo 50 caracteres!" ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Campos do cliente respeitam o tamanho máximo -- @1.2 " status="passed" time="0.0"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_tamanho_campos
+  Esquema do Cenário: Campos do cliente respeitam o tamanho máximo -- @1.2 
+    Quando eu cadastro um cliente com nome de 10 caracteres e CPF "123456789012" ... passed in 0.000s
+    Então o sistema deve recusar com a mensagem "Os dados do cliente excedem o tamanho permitido." ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase><testcase classname="01_cadastro_clientes.Cadastro de clientes" name="Nome com exatamente 50 caracteres é aceito" status="passed" time="0.001009"><system-out>
+<![CDATA[
+@scenario.begin
+
+  @regra_tamanho_campos
+  Cenário: Nome com exatamente 50 caracteres é aceito
+    Quando eu cadastro um cliente com nome de 50 caracteres e CPF "" ... passed in 0.000s
+    Então a operação deve ser aceita ... passed in 0.001s
+    E devem existir 1 clientes cadastrados ... passed in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase></testsuite>
