@@ -208,6 +208,75 @@ O executável fica em `dist\DanteSquash.exe` e continua precisando de
   (`PostgresDatabase.drop_all`), não na interface.
 - A pasta `src/` contém o código Java original, mantido só como referência.
 
+## 9. Resumo atualizado para roteiro de vídeo ou NotebookLM
+
+Use este resumo como fonte para explicar a versão atual do projeto. O vídeo deve
+mostrar a aplicação funcionando e os testes sendo executados; não apresente
+apenas slides ou código.
+
+### Contexto e funcionamento
+
+O Dante Squash & Sauna é uma aplicação desktop em Python para administrar
+clientes, produtos, sauna, reservas de três quadras de squash, mensalidades,
+multas, pagamentos e relatórios. A interface é feita em Tkinter e os dados de
+execução ficam em PostgreSQL. Na primeira inicialização, o sistema cria as
+tabelas e os registros internos necessários. A aba **Valores** deve ser
+configurada antes de operar sauna e squash.
+
+Uma demonstração possível é configurar os valores, cadastrar um cliente e um
+produto, registrar uma reserva e gerar a mensalidade; em seguida, registrar o
+pagamento e mostrar o saldo e o fluxo de caixa. Também é possível demonstrar o
+fluxo da sauna: registrar a entrada, adicionar consumo e fechar a conta. As
+outras abas incluem grade diária, ficha do cliente, resumo mensal e exportação
+de backup em CSV.
+
+### Reconstrução e arquitetura
+
+O sistema foi reconstruído em Python a partir dos requisitos e regras de
+negócio identificados na Entrega 1, mantendo o código Java original em `src/`
+como referência. O domínio e as regras ficam separados da interface e do
+banco; os serviços implementam os casos de uso, as portas definem contratos,
+o adaptador PostgreSQL persiste os dados e `ServiceFactory` compõe as
+dependências. Essa organização permite testar os serviços sem abrir a
+interface e, nos testes BDD, sem conectar ao PostgreSQL.
+
+Entre as melhorias documentadas estão o uso de `DATE`, `NUMERIC` e `Decimal`,
+transações por caso de uso, validações explícitas e correções para multas,
+mensalidades de aulas, datas, arredondamento e cadastro de produtos. Não diga
+que o banco antigo é migrado automaticamente: a migração do dump legado não
+faz parte do projeto. O backup disponível exporta CSV; restauração não foi
+implementada.
+
+### Testes e evidências
+
+Os testes pytest estão organizados em unidade, negócio, fluxo principal, banco,
+arquitetura e interface gráfica. Os testes de banco usam PostgreSQL real
+(Testcontainers ou o DSN de teste configurado); os cenários Behave exercitam
+os serviços reais sobre um banco em memória e não comprovam, por si só, a
+interface Tkinter ou a integração com PostgreSQL.
+
+Nesta revisão, a execução de `python -m behave --no-color` passou: **12
+funcionalidades, 102 cenários e 586 passos, sem falhas ou cenários ignorados**.
+Para o vídeo, mostre a execução dos testes que desejar apresentar e a saída
+real daquele momento. Não atribua esse resultado à suíte pytest: ela deve ser
+executada separadamente com `python -m pytest`.
+
+### Sugestão de sequência do vídeo
+
+1. Apresente o objetivo e contextualize a reconstrução do sistema legado.
+2. Abra a aplicação e demonstre ao menos um fluxo de squash/pagamento e um
+   fluxo de sauna, observando as regras de negócio.
+3. Explique brevemente a separação entre interface, serviços, domínio e
+   infraestrutura.
+4. Execute e apresente os resultados reais do pytest e do Behave; explique que
+   o BDD usa banco em memória.
+5. Encerre citando melhorias e limitações: PostgreSQL necessário para a
+   aplicação, dump antigo não migrado automaticamente e backup sem restauração.
+
+Use dados fictícios na gravação. Informe as ferramentas de IA e de
+desenvolvimento realmente utilizadas pelo grupo, indicando em quais etapas
+foram usadas; não atribua ferramentas ou resultados sem confirmação da equipe.
+
 ## Prompt original
 
 ```text
