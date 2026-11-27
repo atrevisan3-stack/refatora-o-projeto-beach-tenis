@@ -19,11 +19,9 @@ class ConsumptionTab:
         self.frame = ttk.Frame(tabs, padding=12)
         tabs.add(self.frame, text="Consumos")
         w = kit.widgets
-        self.customer, self.product, self.quantity, self.day = w.form(
-            self.frame,
-            ("Código do cliente", "Código do produto", "Quantidade", "Data (DD/MM/AAAA)"),
-            row=0,
-        )
+        self.customer = w.lookup(self.frame, "Cliente", lambda: [(c.code, c.name) for c in services.catalog.customers()], row=0)
+        self.product = w.lookup(self.frame, "Produto", lambda: [(p.code, p.description) for p in services.catalog.products()], row=1)
+        self.quantity, self.day = w.form(self.frame, ("Quantidade", "Data (DD/MM/AAAA)"), row=2)
         w.set_text(self.day, kit.parser.date_text(clock.today()))
         self.register_button = w.button(self.frame, "Registrar consumo", self.register, row=4, column=1)
         self.list_button = w.button(self.frame, "Listar consumos", self.refresh, row=4, column=0)
@@ -36,8 +34,8 @@ class ConsumptionTab:
         def action() -> None:
             parser = self._kit.parser
             item = self._services.consumptions.register(
-                customer_id=parser.integer(self.customer.get(), "Código do cliente"),
-                product_code=parser.integer(self.product.get(), "Código do produto"),
+                customer_id=parser.code(self.customer.get(), "Cliente"),
+                product_code=parser.code(self.product.get(), "Produto"),
                 quantity=parser.integer(self.quantity.get(), "Quantidade"),
                 consumption_date=parser.day(self.day.get(), "Data"),
             )
@@ -50,7 +48,7 @@ class ConsumptionTab:
 
     def refresh(self) -> None:
         self._kit.runner.run(
-            lambda: self._load(self._kit.parser.integer(self.customer.get(), "Código do cliente"))
+            lambda: self._load(self._kit.parser.code(self.customer.get(), "Cliente"))
         )
 
     def delete(self) -> None:
@@ -69,13 +67,15 @@ class ConsumptionTab:
 
     def _load(self, customer_id: int) -> None:
         parser = self._kit.parser
+        products = self._services.catalog.product_names()
         self._kit.widgets.replace_rows(
             self.table,
             [
                 (
                     f"{c.customer_id}|{parser.date_text(c.date)}|{c.sequence}",
                     (
-                        parser.date_text(c.date), c.sequence, c.product_code, c.quantity,
+                        parser.date_text(c.date), c.sequence,
+                        parser.option_text(c.product_code, products), c.quantity,
                         parser.money_text(c.unit_price), parser.money_text(c.total),
                         "Sim" if c.paid else "Não",
                     ),
@@ -96,10 +96,9 @@ class PaymentTab:
         self.frame = ttk.Frame(tabs, padding=12)
         tabs.add(self.frame, text="Pagamentos")
         w = kit.widgets
-        self.customer, self.day, self.amount, self.discount = w.form(
-            self.frame,
-            ("Código do cliente", "Data (DD/MM/AAAA)", "Valor pago (R$)", "Desconto (R$)"),
-            row=0,
+        self.customer = w.lookup(self.frame, "Cliente", lambda: [(c.code, c.name) for c in services.catalog.customers()], row=0)
+        self.day, self.amount, self.discount = w.form(
+            self.frame, ("Data (DD/MM/AAAA)", "Valor pago (R$)", "Desconto (R$)"), row=1
         )
         w.set_text(self.day, kit.parser.date_text(clock.today()))
         self.total_label = ttk.Label(self.frame, text="Total em aberto: -")
@@ -111,7 +110,7 @@ class PaymentTab:
         def action() -> None:
             parser = self._kit.parser
             total = self._services.payments.total_due(
-                parser.integer(self.customer.get(), "Código do cliente")
+                parser.code(self.customer.get(), "Cliente")
             )
             self.total_label.configure(text=f"Total em aberto: R$ {parser.money_text(total)}")
 
@@ -120,7 +119,7 @@ class PaymentTab:
     def pay(self) -> None:
         def action() -> None:
             parser = self._kit.parser
-            customer_id = parser.integer(self.customer.get(), "Código do cliente")
+            customer_id = parser.code(self.customer.get(), "Cliente")
             amount = parser.decimal(self.amount.get(), "Valor pago")
             discount = parser.optional_decimal(self.discount.get(), "Desconto")
             total = self._services.payments.total_due(customer_id)
@@ -166,7 +165,8 @@ class SaunaTab:
         self.remove_button = w.button(self.frame, "Excluir frequentador", self.remove_attendee, row=2, column=2)
         self.accounts = w.table(self.frame, ("Frequentador", "Total", "Situação"), row=3, height=6)
         self.accounts.bind("<<TreeviewSelect>>", self.select_account)
-        self.product, self.quantity = w.form(self.frame, ("Código do produto", "Quantidade"), row=4)
+        self.product = w.lookup(self.frame, "Produto", lambda: [(p.code, p.description) for p in services.catalog.products()], row=4)
+        (self.quantity,) = w.form(self.frame, ("Quantidade",), row=5)
         self.consume_button = w.button(self.frame, "Adicionar consumo", self.add_consumption, row=6, column=1)
         self.remove_item_button = w.button(self.frame, "Excluir consumo", self.remove_consumption, row=6, column=2)
         self.items = w.table(self.frame, ("Seq.", "Produto", "Qtd.", "Valor", "Total"), row=7, height=6)
@@ -205,7 +205,7 @@ class SaunaTab:
             self._services.sauna.add_product_consumption(
                 name=name,
                 account_date=self._date(),
-                product_code=parser.integer(self.product.get(), "Código do produto"),
+                product_code=parser.code(self.product.get(), "Produto"),
                 quantity=parser.integer(self.quantity.get(), "Quantidade"),
             )
             self.refresh(select=name)
@@ -262,12 +262,13 @@ class SaunaTab:
         account = self._accounts.get(str(selection[0]))
         if account is None:
             return
+        products = self._services.catalog.product_names()
         self._kit.widgets.replace_rows(
             self.items,
             [
                 (
                     str(c.sequence),
-                    (c.sequence, c.product_code, c.quantity,
+                    (c.sequence, parser.option_text(c.product_code, products), c.quantity,
                      parser.money_text(c.unit_price), parser.money_text(c.total)),
                 )
                 for c in account.consumptions
@@ -302,12 +303,16 @@ class MonthlyBillingTab:
         def action() -> None:
             parser = self._kit.parser
             generated = operation(parser.day(self.day.get(), "Data"))
+            customers = self._services.catalog.customer_names()
+            products = self._services.catalog.product_names()
             self._kit.widgets.replace_rows(
                 self.table,
                 [
                     (
                         f"{c.customer_id}|{c.sequence}",
-                        (c.customer_id, c.product_code, parser.money_text(c.unit_price)),
+                        (parser.option_text(c.customer_id, customers),
+                         parser.option_text(c.product_code, products),
+                         parser.money_text(c.unit_price)),
                     )
                     for c in generated
                 ],
