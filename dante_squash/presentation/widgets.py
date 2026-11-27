@@ -64,6 +64,23 @@ class ValueParser:
                 continue
         raise BusinessRuleError(f"Informe a data em {field} no formato DD/MM/AAAA.")
 
+    def code(self, text: str, field: str) -> int:
+        """Lê o código de um campo de busca no formato "código - nome"."""
+        return self.integer(text.split(" - ", 1)[0], field)
+
+    def codes(self, text: str, field: str) -> list[int]:
+        """Lê vários códigos separados por ";" (ou só os números separados por ",")."""
+        result: list[int] = []
+        for piece in text.split(";"):
+            parts = [piece] if " - " in piece else piece.split(",")
+            result += [self.code(part, field) for part in parts if part.strip()]
+        return result
+
+    def option_text(self, code: object, names: dict) -> str:
+        """Texto "código - nome"; só o código quando o nome não é conhecido."""
+        name = names.get(code)
+        return f"{code} - {name}" if name else str(code)
+
     def money_text(self, value: Decimal) -> str:
         return f"{value:.2f}".replace(".", ",")
 
@@ -100,6 +117,44 @@ class WidgetFactory:
             fields.append(entry)
         parent.columnconfigure(1, weight=1)
         return fields
+
+    def lookup(
+        self,
+        parent: ttk.Frame,
+        label: str,
+        options: Callable[[], Sequence[tuple[object, str]]],
+        *,
+        row: int,
+    ) -> ttk.Combobox:
+        """Campo de busca: lista as opções como "código - nome".
+
+        Ao abrir a lista, ela é recarregada do banco e filtrada pelo texto digitado
+        (busca por parte do código ou do nome).
+        """
+        ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", pady=3)
+        box = ttk.Combobox(parent, width=40)
+
+        def load() -> None:
+            items = [f"{code} - {name}" for code, name in options()]
+            typed = box.get().strip().lower()
+            if typed and typed not in (item.lower() for item in items):
+                items = [item for item in items if typed in item.lower()]
+            box.configure(values=items)
+
+        box.configure(postcommand=load)
+        box.grid(row=row, column=1, sticky="ew", pady=3)
+        parent.columnconfigure(1, weight=1)
+        return box
+
+    def choice(
+        self, parent: ttk.Frame, label: str, values: Sequence[str], *, row: int
+    ) -> ttk.Combobox:
+        """Lista fixa de opções (pode digitar ou escolher)."""
+        ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", pady=3)
+        box = ttk.Combobox(parent, width=40, values=tuple(values))
+        box.grid(row=row, column=1, sticky="ew", pady=3)
+        parent.columnconfigure(1, weight=1)
+        return box
 
     def button(
         self, parent: ttk.Frame, text: str, command: Callable[[], None], *, row: int, column: int

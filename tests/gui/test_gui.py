@@ -89,10 +89,10 @@ def test_substituir_reserva_pede_confirmacao(gui):
     gui.type(tab.customers, str(bruno))
     gui.dialogs.confirm_answer = False
     tab.save_button.invoke()
-    assert gui.rows(tab.table) == [("1", "18:00", "1", "Jogo", str(ana))]
+    assert gui.rows(tab.table) == [("1 - Segunda-feira", "18:00", "1", "Jogo", f"{ana} - Ana")]
     gui.dialogs.confirm_answer = True
     tab.save_button.invoke()
-    assert gui.rows(tab.table) == [("1", "18:00", "1", "Jogo", str(bruno))]
+    assert gui.rows(tab.table) == [("1 - Segunda-feira", "18:00", "1", "Jogo", f"{bruno} - Bruno")]
     assert len(gui.dialogs.confirmations) == 2
 
 
@@ -174,3 +174,62 @@ def test_backup_pela_tela(gui, tmp_path):
     gui.dialogs.directory = str(tmp_path)
     gui.window.backup.backup_button.invoke()
     assert gui.dialogs.last_info().startswith("1 tabela(s) exportada(s)")
+
+
+def test_campos_de_busca_mostram_codigo_e_nome_e_filtram(gui):
+    ana, bruno = gui.scenario.customer("Ana"), gui.scenario.customer("Bruno")
+    agua = gui.scenario.product("Água", "5.00")
+    tab = gui.window.consumptions
+    tab.customer.tk.call(tab.customer.cget("postcommand"))
+    assert tuple(tab.customer.cget("values")) == (f"{ana} - Ana", f"{bruno} - Bruno")
+    gui.type(tab.customer, "bru")
+    tab.customer.tk.call(tab.customer.cget("postcommand"))
+    assert tuple(tab.customer.cget("values")) == (f"{bruno} - Bruno",)
+    tab.product.tk.call(tab.product.cget("postcommand"))
+    assert f"{agua} - Água" in tab.product.cget("values")
+
+
+def test_campo_de_busca_aceita_opcao_codigo_e_nome(gui):
+    ana = gui.scenario.customer("Ana")
+    agua = gui.scenario.product("Água", "50.00")
+    tab = gui.window.consumptions
+    gui.type(tab.customer, f"{ana} - Ana")
+    gui.type(tab.product, f"{agua} - Água")
+    gui.type(tab.quantity, "2")
+    gui.type(tab.day, "12/03/2026")
+    tab.register_button.invoke()
+    assert gui.dialogs.last_info() == "Consumo registrado. Total: R$ 100,00"
+
+
+def test_reserva_escolhendo_clientes_pelo_nome(gui):
+    ana, bruno = gui.scenario.customer("Ana"), gui.scenario.customer("Bruno")
+    tab = gui.window.reservations
+    gui.type(tab.weekday, "2 - Terça-feira")
+    gui.type(tab.time, "10:00")
+    gui.type(tab.court, "2")
+    gui.type(tab.customer_pick, f"{ana} - Ana")
+    tab.add_customer_button.invoke()
+    gui.type(tab.customer_pick, f"{bruno} - Bruno")
+    tab.add_customer_button.invoke()
+    assert tab.customers.get() == f"{ana} - Ana; {bruno} - Bruno"
+    tab.save_button.invoke()
+    assert gui.dialogs.last_info() == "Reserva salva com sucesso!"
+    assert gui.rows(tab.table) == [
+        ("2 - Terça-feira", "10:00", "2", "Jogo", f"{ana} - Ana; {bruno} - Bruno")
+    ]
+    tab.clear_customers_button.invoke()
+    gui.select(tab.table, "2|10:00|2")
+    tab.select()
+    assert tab.customers.get() == f"{ana} - Ana; {bruno} - Bruno"
+
+
+def test_tabela_de_consumos_mostra_nome_do_produto(gui):
+    ana = gui.scenario.customer("Ana")
+    agua = gui.scenario.product("Água", "5.00")
+    gui.scenario.services.consumptions.register(
+        customer_id=ana, product_code=agua, quantity=2, consumption_date=date(2026, 3, 12)
+    )
+    tab = gui.window.consumptions
+    gui.type(tab.customer, f"{ana} - Ana")
+    tab.list_button.invoke()
+    assert gui.rows(tab.table)[0][2] == f"{agua} - Água"

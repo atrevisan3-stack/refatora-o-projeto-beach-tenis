@@ -6,7 +6,14 @@ import tkinter as tk
 from datetime import date
 from tkinter import ttk
 
-from dante_squash.domain import Customer, DueTier, PriceSchedule, Product, Reservation
+from dante_squash.domain import (
+    Customer,
+    DueTier,
+    PriceSchedule,
+    Product,
+    Reservation,
+    SquashCalendar,
+)
 from dante_squash.ports import Clock
 from dante_squash.presentation.widgets import ApplicationServices, UiToolkit
 
@@ -203,40 +210,97 @@ class PricesTab:
 class ReservationTab:
     """RF09: reservas semanais de quadras; aula só com um cliente."""
 
-    def __init__(self, tabs: ttk.Notebook, services: ApplicationServices, kit: UiToolkit) -> None:
+    def __init__(
+        self,
+        tabs: ttk.Notebook,
+        services: ApplicationServices,
+        kit: UiToolkit,
+        squash: SquashCalendar,
+    ) -> None:
         self._services = services
         self._kit = kit
+        self._squash = squash
         self.frame = ttk.Frame(tabs, padding=12)
         tabs.add(self.frame, text="Reservas de squash")
         w = kit.widgets
-        self.weekday, self.time, self.court, self.customers = w.form(
+        self.weekday = w.choice(
             self.frame,
-            (
-                "Dia da semana (1=segunda ... 6=sábado)",
-                "Horário (ex.: 18:45)",
-                "Quadra (1 a 3)",
-                "Códigos dos clientes (separados por vírgula)",
-            ),
+            "Dia da semana",
+            [f"{number} - {name}" for number, name in squash.weekday_names.items()],
             row=0,
+        )
+        self.time = w.choice(self.frame, "Horário", squash.time_slots, row=1)
+        self.court = w.choice(self.frame, "Quadra", [str(court) for court in squash.courts], row=2)
+        self.customer_pick = w.lookup(
+            self.frame,
+            "Cliente",
+            lambda: [(c.code, c.name) for c in services.catalog.customers()],
+            row=3,
+        )
+        self.add_customer_button = w.button(
+            self.frame, "Adicionar cliente", self.add_customer, row=3, column=2
+        )
+        (self.customers,) = w.form(self.frame, ("Clientes da reserva",), row=4)
+        self.clear_customers_button = w.button(
+            self.frame, "Limpar clientes", self.clear_customers, row=4, column=2
         )
         self.is_game = tk.BooleanVar(value=True)
         self.game_check = ttk.Checkbutton(self.frame, text="Jogo (desmarque para aula)", variable=self.is_game)
-        self.game_check.grid(row=4, column=1, sticky="w")
-        self.save_button = w.button(self.frame, "Salvar reserva", self.save, row=5, column=1)
-        self.delete_button = w.button(self.frame, "Excluir reserva", self.delete, row=5, column=2)
-        self.table = w.table(self.frame, ("Dia", "Horário", "Quadra", "Tipo", "Clientes"), row=6)
+        self.game_check.grid(row=5, column=1, sticky="w")
+        self.save_button = w.button(self.frame, "Salvar reserva", self.save, row=6, column=1)
+        self.delete_button = w.button(self.frame, "Excluir reserva", self.delete, row=6, column=2)
+        self.table = w.table(self.frame, ("Dia", "Horário", "Quadra", "Tipo", "Clientes"), row=7)
+        self.table.bind("<<TreeviewSelect>>", self.select)
         self.refresh()
+
+    def add_customer(self) -> None:
+        def action() -> None:
+            picked = self.customer_pick.get().strip()
+            self._kit.parser.code(picked, "Cliente")
+            current = self.customers.get().strip()
+            self._kit.widgets.set_text(self.customers, f"{current}; {picked}" if current else picked)
+            self._kit.widgets.clear((self.customer_pick,))
+
+        self._kit.runner.run(action)
+
+    def clear_customers(self) -> None:
+        self._kit.widgets.clear((self.customers,))
+
+    def select(self, _event: object = None) -> None:
+        """Ao clicar numa reserva, preenche o formulário com ela."""
+        selection = self.table.selection()
+        if not selection:
+            return
+        weekday, time, court = str(selection[0]).split("|")
+        reservation = next(
+            (
+                r for r in self._services.reservations.reservations()
+                if (r.weekday, r.time, r.court) == (int(weekday), time, int(court))
+            ),
+            None,
+        )
+        if reservation is None:
+            return
+        names = self._services.catalog.customer_names()
+        parser, w = self._kit.parser, self._kit.widgets
+        w.set_text(self.weekday, parser.option_text(reservation.weekday, self._squash.weekday_names))
+        w.set_text(self.time, reservation.time)
+        w.set_text(self.court, str(reservation.court))
+        w.set_text(
+            self.customers,
+            "; ".join(parser.option_text(code, names) for code in reservation.customer_ids),
+        )
+        self.is_game.set(reservation.is_game)
 
     def save(self) -> None:
         def action() -> None:
             parser = self._kit.parser
-            codes = [code for code in self.customers.get().split(",") if code.strip()]
             reservation = Reservation(
-                weekday=parser.integer(self.weekday.get(), "Dia da semana"),
+                weekday=parser.code(self.weekday.get(), "Dia da semana"),
                 time=self.time.get().strip(),
                 court=parser.integer(self.court.get(), "Quadra"),
                 is_game=self.is_game.get(),
-                customer_ids=tuple(parser.integer(code, "Clientes") for code in codes),
+                customer_ids=tuple(parser.codes(self.customers.get(), "Clientes")),
             )
             reservation.validate()
             replace = True
@@ -266,13 +330,16 @@ class ReservationTab:
         self._kit.runner.run(action)
 
     def refresh(self) -> None:
+        parser = self._kit.parser
+        names = self._services.catalog.customer_names()
         self._kit.widgets.replace_rows(
             self.table,
             [
                 (
                     f"{r.weekday}|{r.time}|{r.court}",
-                    (r.weekday, r.time, r.court, "Jogo" if r.is_game else "Aula",
-                     ", ".join(str(code) for code in r.customer_ids)),
+                    (parser.option_text(r.weekday, self._squash.weekday_names), r.time, r.court,
+                     "Jogo" if r.is_game else "Aula",
+                     "; ".join(parser.option_text(code, names) for code in r.customer_ids)),
                 )
                 for r in self._services.reservations.reservations()
             ],

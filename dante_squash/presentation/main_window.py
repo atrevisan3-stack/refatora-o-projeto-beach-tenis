@@ -45,7 +45,7 @@ class MainWindow:
         self.tabs.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         self.sauna = SaunaTab(self.tabs, services, kit, clock)
         self.day_grid = DayGridTab(self.tabs, services, kit, clock)
-        self.reservations = ReservationTab(self.tabs, services, kit)
+        self.reservations = ReservationTab(self.tabs, services, kit, squash)
         self.monthly_billing = MonthlyBillingTab(self.tabs, services, kit, clock)
         self.customers = CustomerTab(self.tabs, services, kit)
         self.products = ProductTab(self.tabs, services, kit)

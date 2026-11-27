@@ -30,6 +30,11 @@ class CatalogService:
                 if item.code != self._products.sauna_customer
             ]
 
+    def customer_names(self) -> dict[int, str]:
+        """Nome de cada cliente pelo código, para mostrar "código - nome" na tela."""
+        with self._unit_of_work() as work:
+            return {item.code: item.name for item in work.customers.list_all()}
+
     def customer(self, code: int) -> Customer:
         with self._unit_of_work() as work:
             customer = work.customers.get(code)
@@ -78,6 +83,11 @@ class CatalogService:
                 for item in work.products.list_all()
                 if not self._products.is_internal(item.code)
             ]
+
+    def product_names(self) -> dict[int, str]:
+        """Descrição de cada produto pelo código, incluindo os internos."""
+        with self._unit_of_work() as work:
+            return {item.code: item.description for item in work.products.list_all()}
 
     def save_product(self, product: Product) -> Product:
         """Inclui ou altera um produto; códigos internos são protegidos (RN03)."""

@@ -26,7 +26,7 @@ class CustomerSheetTab:
         self.frame = ttk.Frame(tabs, padding=12)
         tabs.add(self.frame, text="Ficha do cliente")
         w = kit.widgets
-        (self.customer,) = w.form(self.frame, ("Código do cliente",), row=0)
+        self.customer = w.lookup(self.frame, "Cliente", lambda: [(c.code, c.name) for c in services.catalog.customers()], row=0)
         self.show_button = w.button(self.frame, "Mostrar ficha", self.show, row=1, column=1)
         self.summary = ttk.Label(self.frame, text="")
         self.summary.grid(row=2, column=0, columnspan=4, sticky="w")
@@ -39,7 +39,7 @@ class CustomerSheetTab:
         def action() -> None:
             parser = self._kit.parser
             sheet = self._services.reports.customer_sheet(
-                parser.integer(self.customer.get(), "Código do cliente")
+                parser.code(self.customer.get(), "Cliente")
             )
             self.summary.configure(
                 text=f"{sheet.customer.name} — total devido: R$ {parser.money_text(sheet.total_due)}"
